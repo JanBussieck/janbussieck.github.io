@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html ⚡>
+<head>
+    <meta charset="utf-8">
+
+    <title>useEffect under the Hood</title>
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    
+    <meta property="og:site_name" content="bussieck.com" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="useEffect under the Hood" />
+    <meta property="og:description" content="To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code." />
+    <meta property="og:url" content="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" />
+    <meta property="article:published_time" content="2020-04-20T11:16:19.000Z" />
+    <meta property="article:modified_time" content="2020-04-23T12:37:07.000Z" />
+    <meta property="article:tag" content="hooks" />
+    <meta property="article:tag" content="react" />
+    <meta property="article:tag" content="Tech" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="useEffect under the Hood" />
+    <meta name="twitter:description" content="To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code." />
+    <meta name="twitter:url" content="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/" />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jan Bussieck" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="hooks, react, Tech" />
+    <meta name="twitter:site" content="@buss_jan" />
+    <meta property="og:image:width" content="2000" />
+    <meta property="og:image:height" content="1333" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "bussieck.com",
+        "url": "https://janbussieck.github.io/bussieck-static/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://janbussieck.github.io/bussieck-static/content/images/2020/03/logo.png"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Jan Bussieck",
+        "image": {
+            "@type": "ImageObject",
+            "url": "//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s=250&d=mm&r=x",
+            "width": 250,
+            "height": 250
+        },
+        "url": "https://janbussieck.github.io/bussieck-static/author/jan/",
+        "sameAs": []
+    },
+    "headline": "useEffect under the Hood",
+    "url": "https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/",
+    "datePublished": "2020-04-20T11:16:19.000Z",
+    "dateModified": "2020-04-23T12:37:07.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ",
+        "width": 2000,
+        "height": 1333
+    },
+    "keywords": "hooks, react, Tech",
+    "description": "To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code.",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://janbussieck.github.io/bussieck-static/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 3.12" />
+    <link rel="alternate" type="application/rss+xml" title="bussieck.com" href="https://janbussieck.github.io/bussieck-static/rss/" />
+
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,600,400" />
+    <style amp-custom>html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:bold}dfn{font-style:italic}h1{margin:0.67em 0;font-size:2em}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{position:relative;vertical-align:baseline;font-size:75%;line-height:0}sup{top:-0.5em}sub{bottom:-0.25em}img{border:0}amp-img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}button,input,optgroup,select,textarea{margin:0;color:inherit;font:inherit}button{overflow:visible}button,select{text-transform:none}button,html input[type="button"],input[type="reset"],input[type="submit"]{cursor:pointer;-webkit-appearance:button}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{padding:0;border:0}input{line-height:normal}input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}input[type="search"]{-webkit-appearance:textfield}input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}fieldset{margin:0 2px;padding:0.35em 0.625em 0.75em;border:1px solid #c0c0c0}legend{padding:0;border:0}textarea{overflow:auto}optgroup{font-weight:bold}table{border-spacing:0;border-collapse:collapse}td,th{padding:0}html{max-height:100%;height:100%;font-size:62.5%;-webkit-tap-highlight-color:rgba(0, 0, 0, 0)}body{max-height:100%;height:100%;color:#3a4145;background:#f4f8fb;letter-spacing:0.01rem;font-family:"Merriweather", serif;font-size:1.8rem;line-height:1.75em;text-rendering:geometricPrecision;-webkit-font-feature-settings:"kern" 1;-moz-font-feature-settings:"kern" 1;-o-font-feature-settings:"kern" 1}::-moz-selection{background:#d6edff}::selection{background:#d6edff}h1,h2,h3,h4,h5,h6{margin:0 0 0.3em 0;color:#2e2e2e;font-family:"Open Sans", sans-serif;line-height:1.15em;text-rendering:geometricPrecision;-webkit-font-feature-settings:"dlig" 1, "liga" 1, "lnum" 1, "kern" 1;-moz-font-feature-settings:"dlig" 1, "liga" 1, "lnum" 1, "kern" 1;-o-font-feature-settings:"dlig" 1, "liga" 1, "lnum" 1, "kern" 1}h1{text-indent:-2px;letter-spacing:-1px;font-size:2.6rem}h2{letter-spacing:0;font-size:2.4rem}h3{letter-spacing:-0.6px;font-size:2.1rem}h4{font-size:1.9rem}h5{font-size:1.8rem}h6{font-size:1.8rem}a{color:#4a4a4a}a:hover{color:#111}p,ul,ol,dl{margin:0 0 2.5rem 0;font-size:1.5rem;text-rendering:geometricPrecision;-webkit-font-feature-settings:"liga" 1, "onum" 1, "kern" 1;-moz-font-feature-settings:"liga" 1, "onum" 1, "kern" 1;-o-font-feature-settings:"liga" 1, "onum" 1, "kern" 1}ol,ul{padding-left:2em}ol ol,ul ul,ul ol,ol ul{margin:0 0 0.4em 0;padding-left:2em}dl dt{float:left;clear:left;overflow:hidden;margin-bottom:1em;width:180px;text-align:right;text-overflow:ellipsis;white-space:nowrap;font-weight:700}dl dd{margin-bottom:1em;margin-left:200px}li{margin:0.4em 0}li li{margin:0}hr{display:block;margin:1.75em 0;padding:0;height:1px;border:0;border-top:#efefef 1px solid}blockquote{box-sizing:border-box;margin:1.75em 0 1.75em 0;padding:0 0 0 1.75em;border-left:#4a4a4a 0.4em solid;-moz-box-sizing:border-box}blockquote p{margin:0.8em 0;font-style:italic}blockquote small{display:inline-block;margin:0.8em 0 0.8em 1.5em;color:#ccc;font-size:0.9em}blockquote small:before{content:"\2014 \00A0"}blockquote cite{font-weight:700}blockquote cite a{font-weight:normal}mark{background-color:#fdffb6}code,tt{padding:1px 3px;border:#e3edf3 1px solid;background:#f7fafb;border-radius:2px;white-space:pre-wrap;font-family:Inconsolata, monospace, sans-serif;font-size:0.85em;font-feature-settings:"liga" 0;-webkit-font-feature-settings:"liga" 0;-moz-font-feature-settings:"liga" 0}pre{overflow:auto;box-sizing:border-box;margin:0 0 1.75em 0;padding:10px;width:100%;border:#e3edf3 1px solid;background:#f7fafb;border-radius:3px;white-space:pre;font-family:Inconsolata, monospace, sans-serif;font-size:0.9em;-moz-box-sizing:border-box}pre code,pre tt{padding:0;border:none;background:transparent;white-space:pre-wrap;font-size:inherit}kbd{display:inline-block;margin-bottom:0.4em;padding:1px 8px;border:#ccc 1px solid;background:#f4f4f4;border-radius:4px;box-shadow:0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff inset;color:#666;text-shadow:#fff 0 1px 0;font-size:0.9em;font-weight:700}table{box-sizing:border-box;margin:1.75em 0;max-width:100%;width:100%;background-color:transparent;-moz-box-sizing:border-box}table th,table td{padding:8px;border-top:#efefef 1px solid;vertical-align:top;text-align:left;line-height:20px}table th{color:#000}table caption + thead tr:first-child th,table caption + thead tr:first-child td,table colgroup + thead tr:first-child th,table colgroup + thead tr:first-child td,table thead:first-child tr:first-child th,table thead:first-child tr:first-child td{border-top:0}table tbody + tbody{border-top:#efefef 2px solid}table table table{background-color:#fff}table tbody > tr:nth-child(odd) > td,table tbody > tr:nth-child(odd) > th{background-color:#f6f6f6}table.plain tbody > tr:nth-child(odd) > td,table.plain tbody > tr:nth-child(odd) > th{background:transparent}iframe,amp-iframe,.fluid-width-video-wrapper{display:block;margin:1.75em 0}.fluid-width-video-wrapper iframe,.fluid-width-video-wrapper amp-iframe{margin:0}textarea,select,input{margin:0 0 5px 0;padding:6px 9px;width:260px;outline:0;border:#e7eef2 1px solid;background:#fff;border-radius:4px;box-shadow:none;font-family:"Open Sans", sans-serif;font-size:1.6rem;line-height:1.4em;font-weight:100;-webkit-appearance:none}textarea{min-width:250px;min-height:80px;max-width:340px;width:100%;height:auto}input[type="text"]:focus,input[type="email"]:focus,input[type="search"]:focus,input[type="tel"]:focus,input[type="url"]:focus,input[type="password"]:focus,input[type="number"]:focus,input[type="date"]:focus,input[type="month"]:focus,input[type="week"]:focus,input[type="time"]:focus,input[type="datetime"]:focus,input[type="datetime-local"]:focus,textarea:focus{outline:none;outline-width:0;border:#bbc7cc 1px solid;background:#fff}select{width:270px;height:30px;line-height:30px}.clearfix:before,.clearfix:after{content:" ";display:table}.clearfix:after{clear:both}.clearfix{zoom:1}.main-header{position:relative;display:table;overflow:hidden;box-sizing:border-box;width:100%;height:50px;background:#5ba4e5 no-repeat center center;background-size:cover;text-align:left;-webkit-box-sizing:border-box;-moz-box-sizing:border-box}.content{background:#fff;padding-top:15px}.blog-title,.content{margin:auto;max-width:600px}.blog-title a{display:block;padding-right:16px;padding-left:16px;height:50px;color:#fff;text-decoration:none;font-family:"Open Sans", sans-serif;font-size:16px;line-height:50px;font-weight:600}.post{position:relative;margin-top:0;margin-right:16px;margin-left:16px;padding-bottom:0;max-width:100%;border-bottom:#ebf2f6 1px solid;word-wrap:break-word;font-size:0.95em;line-height:1.65em}.post-header{margin-bottom:1rem}.post-title{margin-bottom:0}.post-title a{text-decoration:none}.post-meta{display:block;margin:3px 0 0 0;color:#9eabb3;font-family:"Open Sans", sans-serif;font-size:1.3rem;line-height:2.2rem}.post-meta a{color:#9eabb3;text-decoration:none}.post-meta a:hover{text-decoration:underline}.post-meta .author{margin:0;font-size:1.3rem;line-height:1.3em}.post-date{display:inline-block;text-transform:uppercase;white-space:nowrap;font-size:1.2rem;line-height:1.2em}.post-image{margin:0;padding-top:3rem;padding-bottom:30px;border-top:1px #E8E8E8 solid}.post-content amp-img,.post-content amp-anim{position:relative;left:50%;display:block;padding:0;min-width:0;max-width:112%;width:calc(100% + 32px);height:auto;transform:translateX(-50%);-webkit-transform:translateX(-50%);-ms-transform:translateX(-50%)}.footnotes{font-size:1.3rem;line-height:1.6em;font-style:italic}.footnotes li{margin:0.6rem 0}.footnotes p{margin:0}.footnotes p a:last-child{text-decoration:none}.site-footer{position:relative;margin:0 auto 20px auto;padding:1rem 15px;max-width:600px;color:rgba(0,0,0,0.5);font-family:"Open Sans", sans-serif;font-size:1.1rem;line-height:1.75em}.site-footer a{color:rgba(0,0,0,0.5);text-decoration:none;font-weight:bold}.site-footer a:hover{border-bottom:#bbc7cc 1px solid}.poweredby{display:block;float:right;width:45%;text-align:right}.copyright{display:block;float:left;width:45%}</style>
+
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+    
+
+</head>
+
+<body class="amp-template">
+    <header class="main-header">
+        <nav class="blog-title">
+            <a href="https://janbussieck.github.io/bussieck-static">bussieck.com</a>
+        </nav>
+    </header>
+
+    <main class="content" role="main">
+        <article class="post">
+
+            <header class="post-header">
+                <h1 class="post-title">useEffect under the Hood</h1>
+                <section class="post-meta">
+                    <p class="author">by <a href="/author/jan/">Jan Bussieck</a></p>
+                    <time class="post-date" datetime="2020-04-20">2020-04-20</time>
+                </section>
+            </header>
+            <figure class="post-image">
+                <amp-img src="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" width="600" height="400" layout="responsive"></amp-img>
+            </figure>
+            <section class="post-content">
+
+                <p>The best way I have found to really have an accurate mental model of the programming abstractions I use whether compilers, promises or frameworks like react, it is to crack open the blackbox and understand the essential implementation details.<br />While there are a number of excellent posts on <a href="https://www.netlify.com/blog/2019/03/11/deep-dive-how-do-react-hooks-really-work/">how hooks work under the hood</a>, the inner workings of useEffect and how it relates to the lifecycle of a component continue to be a source of puzzlement for many.<br />As I’ll attempt to show when you peak behind the curtain the <code>useEffect</code> hook’s implementation is quite straightforward and fits elegantly into React’s reconciliation algorithm.<br />By the end I hope we’ll be able to confidently answer questions such as:</p><ul><li>Why do we have to call <code>useEffect</code> hooks in the same order?</li><li>How are hooks represented by a fiber?</li><li>When and how exactly are values in the dependency array compared?</li><li>When and how are effects cleaned up?</li><li>Why can’t we take advantage of React fibers in my useEffect callbacks?</li></ul><p>First, let’s briefly recap how React fibers and the reconciliation algorithm work; during reconciliation React builds up a work-in-progress fiber tree and computes a set of changes by walking the component tree and recursively calling <code>render</code>. Each React element is thus turned into a fiber node of  <a href="https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/shared/ReactWorkTags.js">corresponding type</a>  that keeps record of the work to be done. Think of a fiber as representing a unit of work that can be independently scheduled, paused and aborted.<br />When an update is called, React will add the update to a component update queue, for instance, when setState is called on render, React calls the updater function which was passed into setState. After the updater is finished the fiber gets a <em>tag</em> that a change needs to be made in the DOM.<br />The list of changes are then propagated up to the parent fiber and merged into its list of changes. This list of changes is also called <em>effect list</em>. When React reaches the root node the work in progress tree is marked as a pending commit.</p><p>Those changes, however, are not immediately committed to a rendering target such as the DOM.  That happens in the <em>commit</em> phase, this phase is atomic and cannot be interrupted, otherwise there might be UI inconsistencies.<br />During the commit phase React iterates over the effect list and makes its changes to the rendering target (e.g. DOM).</p><p>Let’s look at some code:<br /><code>useEffect</code> is defined in <code>ReactHooks.js</code> and its type signature clues us in to how it works; it accepts as first argument a function creating the effect, which optionally returns a function (cleaning up the effect) and as second argument an optional array of inputs (the dependency array) of variable type.<br />We see that the functions first resolves a dispatcher and then delegates to it.</p><pre><code class="language-javascript">//react/blob/master/packages/react/src/ReactHooks.js#L104
+export function useEffect(
+  create: () =&gt; (() =&gt; void) | void,
+  inputs: Array&lt;mixed&gt; | void | null,
+) {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useEffect(create, inputs);
+}
+</code></pre><p>The hook dispatchers are resolved depending on the current context, if it's the initial render and the component just mounted <code>HooksDispatcherOnMount</code> and otherwise <code>HooksDispatcherOnUpdate</code> is returned, correspondingly the dispatcher returns either <code>mountEffect</code> or <code>updateEffect</code>.</p><pre><code class="language-javascript">//react/blob/master/packages/react-reconciler/src/ReactFiberHooks.old.js#L570
+const HooksDispatcherOnMount: Dispatcher = {
+	...
+  useEffect: mountEffect,
+  ...
+};
+
+const HooksDispatcherOnUpdate: Dispatcher = {
+  ...
+  useEffect: updateEffect,
+  ...
+}
+</code></pre><p>Without looking at the implementation, from our experience working with <code>useEffect</code> we know that these cases differ in at least one respect; the create function of <code>useEffect</code> is always invoked on mount, regardless of its second argument.</p><p>Let us first look at the more common update case; <code>updateEffect</code> delegates to <code>updateEffectImpl</code>  to pass in the current fiber and hook effect tags. I don’t want to go too much into effect tags here, suffice it to mention that each fiber’s effects are encoded in an <code>effectTag</code>, they define  the  <a href="https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/shared/ReactSideEffectTags.js">work</a>  that needs to be done for instances after updates have been processed, similarly there are hook effect tags carrying information about the hook effect's context, e.g. whether the component is unmounting or whether the effect should be invoked at all (the <code>NoHookEffect</code> tag).<br /><code>updateEffectImpl</code> first calls <code>updateWorkInProgressHook</code> to get a new hook instance, which is basically just a clone of the current hook or if we are in a work-in-progress tree the current work-in-progress hook:</p><pre><code class="language-javascript">const newHook: Hook = {
+  memoizedState: currentHook.memoizedState,
+
+  baseState: currentHook.baseState,
+  queue: currentHook.queue,
+  baseUpdate: currentHook.baseUpdate,
+
+  next: null,
+};
+</code></pre><p>When a hook is called in our component it builds up a queue where hooks are represented as linked list in their call order with each hook’s <code>next</code> field pointing to the next hook. Since these are copied over from each render, we see why we cannot call hooks conditionally or change their call order from render to render.<br />The <code>baseState</code> and <code>baseUpdate</code> fields are relevant to <code>useState</code> and <code>useDispatch</code> hooks,  <code>useEffect</code> most importantly uses <code>memoizedState</code> to hold a reference to the previous effect. Let’s look at why.</p><pre><code class="language-javascript">//react/packages/react-reconciler/src/ReactFiberHooks.old.js#L1218
+function updateEffectImpl(fiberEffectTag, hookEffectTag, create, deps): void {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  let destroy = undefined;
+
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    destroy = prevEffect.destroy;
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        pushEffect(NoHookEffect, create, destroy, nextDeps);
+        return;
+      }
+    }
+  }
+
+  sideEffectTag |= fiberEffectTag;
+  hook.memoizedState = pushEffect(hookEffectTag, create, destroy, nextDeps);
+}
+</code></pre><p>The most interesting thing happening here is that if there is a <code>currentHook</code> we fetch the previous effect from the hook’s <code>memoizedState</code> field to get the previous dependencies and compare them to the next dependencies. If they are equal, we push an effect onto the queue with the <code>NoHookEffect</code> tag and return, which means that the effect will still be run during commit, but it won’t be executed (its <code>create</code> function won't be invoked). Finally, if the dependencies are not equal, we push the effect onto the queue with an effect tag that ensures the effect will fire.<br />As a side note <code>areHookInputsEqual</code> delegates to <code>Object.is</code> instead of a plain object reference comparison to catch javascript quirks such as <code>NaN === NaN // false</code>.</p><p>We skip over the source of<code>mountEffectImpl</code> here, since it only differs from <code>updateEffectImpl</code> in that it does not check the dependency array and simply pushes the hook on the effect queue to be executed.</p><p>That is basically all that happens during reconciliation; values from previous useEffect hooks are cloned, the new dependencies compared to previous ones which were saved on the <code>memoizedState</code> field to determine whether the effect should fire or not and that information is pushed on the effect queue.</p><p>The next time we see our effect is after React has finished reconciliation, every render has been called and the list of updates to be committed to the rendering target aggregated. We are in the commit phase now and <code>commitWork</code> calls <code>commitHookEffectList</code>:</p><pre><code class="language-javascript">function commitWork(current: Fiber | null, finishedWork: Fiber): void {
+	...
+  commitHookEffectList(UnmountMutation, MountMutation, finishedWork);
+	...
+}
+</code></pre><p> <code>commitHookEffectList</code> in turn iterates over the effect list, checks the tag to determine in which phase the effect has been added to the list and fires <code>create</code> or <code>destroy</code> respectively.<br />We see that in the case of an <code>unmountTag</code>  the <code>destroy</code> clean up function is called. In case, we are in an update phase, <code>create</code> is called firing the effect and the <code>destroy</code> function returned from `createz is simply saved on the effect for future reference in the unmount phase. If the effect has been tagged with <code>NoHookEffect</code> it is simply skipped.</p><pre><code class="language-javascript">// react/ReactFiberCommitWork.old.js at master · facebook/react
+function commitHookEffectList(
+  unmountTag: number,
+  mountTag: number,
+  finishedWork: Fiber,
+) {
+  const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
+  let lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+  if (lastEffect !== null) {
+    const firstEffect = lastEffect.next;
+    let effect = firstEffect;
+    do {
+      if ((effect.tag &amp; unmountTag) !== NoHookEffect) {
+        // Unmount
+        const destroy = effect.destroy;
+        effect.destroy = undefined;
+        if (destroy !== undefined) {
+          destroy();
+        }
+      }
+      if ((effect.tag &amp; mountTag) !== NoHookEffect) {
+        // Mount
+        const create = effect.create;
+        effect.destroy = create();
+
+        if (__DEV__) {...}
+      }
+      effect = effect.next;
+    } while (effect !== firstEffect);
+  }
+}
+</code></pre><p>Now we also see why the code we run in <code>useEffect</code> cannot take advantage of fibers which are able to pause in order to let other higher priority work finish before rendering is resumed. This is because the effect is executed inside of <code>commitWork</code> which makes atomic changes to the rendering target to avoid UI inconsistencies. This is important to bear in mind lest one is tempted to perform computationally intensive, synchronous work inside a <code>useEffect</code> hook.</p><p>I hope this basic understanding of how <code>useEffect</code> works under the hood helps you become more confident working with <code>useEffect</code> and avoid common pitfalls. It may also have encouraged you to pull away the curtain once in a while and take a look at the React source to deepen your understanding. The most difficult to understand parts of the code are often related to performance and other house-keeping, but you shouldn't let that shroud your understanding of the central pieces that are concerned with React’s core functionality.<br />Happy source reading!</p>
+
+            </section>
+
+        </article>
+    </main>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="https://janbussieck.github.io/bussieck-static">bussieck.com</a> &copy; 2021</section>
+        <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
+    </footer>
+</body>
+</html>

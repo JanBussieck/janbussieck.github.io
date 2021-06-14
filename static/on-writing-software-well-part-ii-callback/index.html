@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>&#x27;On Writing Software Well&#x27; II</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css?v=7fed270a62" />
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-ii-callback/" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-ii-callback/amp/" />
+    
+    <meta property="og:site_name" content="bussieck.com" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="&#x27;On Writing Software Well&#x27; II" />
+    <meta property="og:description" content="Callbacks vs. Listeners
+We walk through how DHH employs callbacks in Basecamp to send mentions and I offer alternative approach moving code into the controller and using listeners for higher decoupling." />
+    <meta property="og:url" content="https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-ii-callback/" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" />
+    <meta property="article:published_time" content="2020-03-19T21:24:28.000Z" />
+    <meta property="article:modified_time" content="2020-03-22T12:18:34.000Z" />
+    <meta property="article:tag" content="Ruby on Rails" />
+    <meta property="article:tag" content="Software Design" />
+    <meta property="article:tag" content="Tech" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="&#x27;On Writing Software Well&#x27; II" />
+    <meta name="twitter:description" content="Callbacks vs. Listeners
+We walk through how DHH employs callbacks in Basecamp to send mentions and I offer alternative approach moving code into the controller and using listeners for higher decoupling." />
+    <meta name="twitter:url" content="https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-ii-callback/" />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jan Bussieck" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="Ruby on Rails, Software Design, Tech" />
+    <meta name="twitter:site" content="@buss_jan" />
+    <meta property="og:image:width" content="2000" />
+    <meta property="og:image:height" content="1500" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "bussieck.com",
+        "url": "https://janbussieck.github.io/bussieck-static/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://janbussieck.github.io/bussieck-static/content/images/2020/03/logo.png"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Jan Bussieck",
+        "image": {
+            "@type": "ImageObject",
+            "url": "//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s=250&d=mm&r=x",
+            "width": 250,
+            "height": 250
+        },
+        "url": "https://janbussieck.github.io/bussieck-static/author/jan/",
+        "sameAs": []
+    },
+    "headline": "&#x27;On Writing Software Well&#x27; II",
+    "url": "https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-ii-callback/",
+    "datePublished": "2020-03-19T21:24:28.000Z",
+    "dateModified": "2020-03-22T12:18:34.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ",
+        "width": 2000,
+        "height": 1500
+    },
+    "keywords": "Ruby on Rails, Software Design, Tech",
+    "description": "Callbacks vs. Listeners\nWe walk through how DHH employs callbacks in Basecamp to send mentions and I offer alternative approach moving code into the controller and using listeners for higher decoupling.",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://janbussieck.github.io/bussieck-static/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 3.12" />
+    <link rel="alternate" type="application/rss+xml" title="bussieck.com" href="https://janbussieck.github.io/bussieck-static/rss/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.19.0/themes/prism.min.css" />
+
+</head>
+<body class="post-template tag-ruby-on-rails tag-software-design tag-tech">
+
+    <div class="site-wrapper">
+
+        
+
+<header class="site-header">
+    <div class="outer site-nav-main">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left-wrapper">
+        <div class="site-nav-left">
+                <a class="site-nav-logo" href="https://janbussieck.github.io/bussieck-static"><img src="/content/images/2020/03/logo.png" alt="bussieck.com" /></a>
+            <div class="site-nav-content">
+                    <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="https://janbussieck.github.io/bussieck-static/">Home</a></li>
+</ul>
+
+                    <span class="nav-post-title ">&#x27;On Writing Software Well&#x27; II</span>
+            </div>
+        </div>
+    </div>
+    <div class="site-nav-right">
+            <div class="social-links">
+                    <a class="social-link social-link-tw" href="https://twitter.com/buss_jan" title="Twitter" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+</a>
+            </div>
+                <a class="rss-button" href="https://feedly.com/i/subscription/feed/https://janbussieck.github.io/bussieck-static/rss/" title="RSS" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+</a>
+
+    </div>
+</nav>
+    </div>
+</div></header>
+
+
+<main id="site-main" class="site-main outer">
+    <div class="inner">
+
+        <article class="post-full post tag-ruby-on-rails tag-software-design tag-tech featured ">
+
+            <header class="post-full-header">
+
+                <section class="post-full-tags">
+                    <a href="/tag/ruby-on-rails/">Ruby on Rails</a>
+                </section>
+
+                <h1 class="post-full-title">&#x27;On Writing Software Well&#x27; II</h1>
+
+                <p class="post-full-custom-excerpt">Callbacks vs. Listeners
+We walk through how DHH employs callbacks in Basecamp to send mentions and I offer alternative approach moving code into the controller and using listeners for higher decoupling.</p>
+
+                <div class="post-full-byline">
+
+                    <section class="post-full-byline-content">
+
+                        <ul class="author-list">
+                            <li class="author-list-item">
+
+                                <div class="author-card">
+                                    <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                                    <div class="author-info">
+                                        <h2>Jan Bussieck</h2>
+                                        <p>Read <a href="/author/jan/">more posts</a> by this author.</p>
+                                    </div>
+                                </div>
+
+                                <a href="/author/jan/" class="author-avatar">
+                                    <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                                </a>
+
+                            </li>
+                        </ul>
+
+                        <section class="post-full-byline-meta">
+                            <h4 class="author-name"><a href="/author/jan/">Jan Bussieck</a></h4>
+                            <div class="byline-meta-content">
+                                <time class="byline-meta-date" datetime="2020-03-19">19 Mar 2020</time>
+                                <span class="byline-reading-time"><span class="bull">&bull;</span> 6 min read</span>
+                            </div>
+                        </section>
+
+                    </section>
+
+
+                </div>
+            </header>
+
+            <figure class="post-full-image">
+                <img
+                    srcset="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 300w,
+                            https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 600w,
+                            https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 1000w,
+                            https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 2000w"
+                    sizes="(max-width: 800px) 400px,
+                        (max-width: 1170px) 1170px,
+                            2000px"
+                    src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ"
+                    alt="&#x27;On Writing Software Well&#x27; II"
+                />
+            </figure>
+
+            <section class="post-full-content">
+                <div class="post-content">
+                    <h2 id="callbacks-vs-listeners">Callbacks vs. Listeners</h2><p>DHH remarks that he is a big fan of callbacks since they allow you to move a lot of incidental complexity off to the side while the rest of the code can pretend to be on a simple, default path shielding the programmer from a lot of the cognitive load that lives in callbacks instead.</p><p>To see what that means in practice, we are going to trace the mentions feature in Basecamp all the way down and pay attention to how callbacks are used to that end.</p><p>The entry point is the create action of the messages controller, which simply records a new message on a bucket (a bucket is an abstraction used to group certain entities, which will be explained in future episodes). The <code>new_message</code> method in turn simply instantiates a message, note that logic pertaining to the creation of mentions or actual recordings is missing from the controller.</p><pre><code class="language-ruby">class MessagesController &lt; ApplicationController
+...
+  def create
+    @recording = @bucket.record new_message,
+      parent: @parent_recording,
+      status: status_param,
+      subscribers: find_subscribers,
+      category: find_category
+
+    ...
+  end
+  ...
+  def new_message
+    Message.new params.require(:message).permit(:subject, :content)
+  end
+...
+end
+</code></pre><p>A mention is a model joining a mentioner and mentionee to a specific recording:</p><pre><code class="language-ruby">class Mention &lt; ActiveRecord::Base
+  ...
+  belongs_to: :recording
+
+  belongs_to: mentionee, class_name: 'Person', inverse_of: :mentions
+  belongs_to: mentioner, class_name: 'Person'
+  ...
+  after_commit :deliver, unless: -&gt; { mentioner == mentionee }, on: [:create, :update]
+end
+</code></pre><p>Mentions are a simple concern which orchestrates when mentions are to be scheduled.</p><pre><code class="language-ruby">module Recording::Mentions
+  extend ActiveSupport::Concern
+
+  included do
+    has_many :mentions
+    after_save :remember_to_eavesdrop
+    after_commit :eavesdrop_for_mentions, on: %i[ create update ], if: :eavesdropping?
+  end
+  ...
+  private
+  
+  def remember_to_eavesdrop
+    @eavesdropping = active_or_archived_recordable_changed? || draft_became_active?
+  end
+
+  def eavesdropping?
+    @eavesdropping &amp;&amp; !Mention::Eavesdropper.suppressed? &amp;&amp; has_mentions? 
+  end
+
+  def eavesdrop_for_mentions
+    Mention::EavesdroppingJob.perform_later self, mentioner: Current.person
+  end
+end
+</code></pre><p>DHH points out a trick to track dirty attributes, circumventing a problem that many Rails developers have also run into; when you run an <code>after_commit</code> callback you can no longer access to which attributes changed invoking neither <code>changed_attributes</code> nor the <code>_changed?</code> methods, since they only persist within a database transaction.</p><p>We simply check before the transaction is committed in an <code>after_save</code> callback which attributes changed, make a note of it in an instance variable so that we can access the information later (e.g. in the <code>after_commit</code> callback).</p><p>Here, <code>remember_to_eavesdrop</code> records whether the content of the recordable record actually changed or whether a recordable which might contain mentions became active before we scan for mentions.</p><p>The <code>eavesdropping?</code> query method simply checks whether the instance variable is set, that mentions exists and that the eavesdropping callback has not been disabled via <code>suppress</code>. To the last point, DDH explains that while callbacks are supposed to contain code that should run by default, it might sometimes be necessary to disable them.</p><p>Finally, after checking whether we should perform any work and scan for mentions, the actual work is delegated to a job via <code>eavesdrop_for_mentions</code>, the job simply instantiates an instance of <code>Mention::Eavesdropper</code> which creates the actual mentions. Also, note how the method <code>Current,</code> a class that allows global, per-request storage of attributes, is used to pass the current user as mentioner to the job.</p><pre><code class="language-ruby">class Mention::EavesdroppingJob &lt; ApplicationJob
+  queue_as :background
+
+  def perform(recording, mentioner)
+    Current.set(account: recording.account) do
+      Mention::EavesDropper.new(recording, mentioner).create_mentions
+    end
+  end
+end
+</code></pre><p>The <code>EavesDropper</code> in turn invokes a scanner that finds mentionees and creates mentions.</p><pre><code class="language-ruby">class Mention::Eavesdropper
+  extend Suppressible
+  ...
+  def create_mentions
+    recording.with_lock do
+      mentionees.each do |mentionee, callsign|
+        create_mention mentionee, callsign
+      end
+    end
+  end
+end
+</code></pre><p>That is it, we moved the ancillary concern of creating mentions off to the side, by handling it in callbacks as response to certain life cycle events of our model as opposed to the 'main path' of our code inside the controller action. A developer interested in the main path i.e. creating messages is not confronted with the complexity of creating mentions right away. While it is true that this reduces some cognitive load in that specific case, it comes at non-negligible cost.<br>Note how we had to trace the feature of creating mentions in response to a change to a recordable record all the way from the controller, through the model's life cycle methods to a job and finally a service creating the mentions. Along the way we are given hints that this level of coupling is fraught with some amount amount of complication.</p><h3 id="tracking-dirty-attributes">Tracking dirty attributes</h3><p>First off, we need intricate knowledge about Rails life cycle methods in order to be able to track changes to a recording and know whether we should even check for mentions. I need to be cognizant of database transaction and how they relate to callbacks to even become aware of how to track model changes in <code>after_commit</code>. Talk about incidental complexity.</p><h3 id="checking-for-suppression-in-callbacks">Checking for suppression in callbacks</h3><p>Secondly, apparently, there are use cases where the client (whoever is initiating those model updates) might not want to listen for mentions, maybe I am seeding data or going through an admin API that I don't want to trigger sending emails. Quite plausible. In those cases, I need to check whether creating mention eavesdroppers has explicitly been suppressed. The problems introduced by this sort of coupling have been addressed in this post. But it again strikes me as very counterintuitive and error-prone to reach into a completely different class, whose internal state has been modified elsewhere in order to decide whether to run a callback or not.</p><h3 id="using-current-to-store-request-wide-state">Using <code>Current</code> to store request-wide state</h3><p>Finally, a problem that results from handling these types of interactions deep down in active record models is that I still need information from the controller. In this case, a global object is used to register that information making it globally accessible in the entire application. That should be the clearest indication that I might be performing work in a class that has to know too much in order to perform it and hence might be the wrong place to do it.</p><h3 id="the-controller-as-mediator">The controller as mediator</h3><p>That's enough for criticisms. I think the highlighted problems all indicate that we shouldn't know what the we are trying to know inside the callback, because we are too far removed from where those decisions occur; the controller.</p><p>I have always thought of the controller, more specifically a controller action, as a <a href="https://en.wikipedia.org/wiki/Mediator_pattern">mediator</a> encapsulating knowledge about a particular use case and deciding which models need to talk to which and what they need to know to accomplish their particular tasks. The controller orchestrates, passes on information and creates side effects, much in the vein of Gary Bernhardt's <a href="https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell">functional core / imperative shell</a>.</p><p>At <a href="http://speqtor.com">speqtor.com</a>, we have a similar feature to Basecamp's mentions where certain updates to models create notifications for different users subscribed to that model.</p><p>A typical controller action looks like this:</p><pre><code class="language-ruby">def update
+  load_criterion
+  build_criterion
+  authorize_criterion
+
+  subscribe_listeners(@criterion)
+
+  save_criterion
+
+  decorate_criterion
+  render_criterion
+end
+</code></pre><p>We like sticking to the same structure in every controller which makes them easy to understand and to spot where interesting things are happening (See the excellent <a href="https://leanpub.com/growing-rails">Growing Rails Applications in Practice</a>). Here, we are updating a criterion that indicates how complex a project is going to be. In this specific use case, a user directly interacts with our web app, as opposed to an importer job or the rails console. In this context we want a number of side effects to happen as a result of certain model events. This is achieved by registering event listeners, which in turn decide what is supposed to happen as a result of those changes.</p><p>In our example, we want to listen to successful updates in order to notify other users.</p><p>This happens inside the <code>SubscribesListeners</code> concern:</p><pre><code class="language-ruby">def subscribe_notification_listener(options = {})
+  with_load_error_guard do
+    listener_class = options[:notification_listener_class] || infer_listener
+    listener = listener_class.new
+
+    listener.current_user = current_user
+    listener.changes = subscription_target.changes.transform_values do |val|
+      val.map(&amp;:to_s)
+    end
+
+    subscription_target.subscribe listener, async: true
+  end
+end
+</code></pre><p>Here, we are instantiating the listener class, pass in the information it needs, i.e. model changes and the current user and subscribe it to the target model (in this case the criterion). Often we add other information available in the controller, such as the scope of the current project or user permissions. The listener, in turn, simply creates the notification.</p><p>Simple enough.</p><p>How are the above problems solved here?</p><p>Regarding dirty attribute tracking; since we haven't persisted the model yet, we can still access model changes though the attributes api, when the model is saved and the database transaction completes, the listener is merely notified of its success or failure.</p><p>As we are still inside the controller context we can also pass any information such as the current user to the listener without having to awkwardly store it in a global <code>Current</code>.</p><p>Lastly, the listener is maximally decoupled, we have to explicitly opt into creating notifications depending on the current use case, as opposed to anticipating every use case by checking related models for suppression.</p><p>An additional benefit is that, we can now easily background the listener without having to worry  about implicit state in the form of model suppression or <code>Current</code> registries.</p><p>So what should callbacks be used for?</p><p>I am not a big fan of hard and fast rules in software design, but sometimes it's prudent to have certain guidelines to stick to unless there is a very good reason for violating them.</p><p>One of them is that callbacks should only deal with immediate model concerns, which are in declining order of popularity:</p><ol><li>Maintaining data integrity and mutating the model into a valid state, examples are normalizing or splitting attributes.</li><li>Mutate a closely associated model, for instance counter caches in a one-to-many association.</li><li>Small side effects for related or derived data such as busting caches.</li></ol>
+                </div>
+            </section>
+
+
+
+        </article>
+
+    </div>
+</main>
+
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+                <article class="read-next-card">
+                    <header class="read-next-card-header">
+                        <h3><span>More in</span> <a href="/tag/ruby-on-rails/">Ruby on Rails</a></h3>
+                    </header>
+                    <div class="read-next-card-content">
+                        <ul>
+                            <li>
+                                <h4><a href="/on-writing-software-well-part-1/">&#x27;On Writing Software Well&#x27; I</a></h4>
+                                <div class="read-next-card-meta">
+                                    <p><time datetime="2020-03-19">19 Mar 2020</time> –
+                                        4 min read</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <footer class="read-next-card-footer">
+                        <a href="/tag/ruby-on-rails/">1 post
+                            →</a>
+                    </footer>
+                </article>
+
+                <article class="post-card post tag-react tag-redux tag-hooks ">
+
+    <a class="post-card-image-link" href="/decouple-from-redux-using-hooks/">
+        <img class="post-card-image"
+            srcset="https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 300w,
+                    https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 600w,
+                    https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 1000w,
+                    https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 2000w"
+            sizes="(max-width: 1000px) 400px, 700px"
+            src="https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ"
+            alt="Decouple from Redux using Hooks"
+        />
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/decouple-from-redux-using-hooks/">
+
+            <header class="post-card-header">
+                    <div class="post-card-primary-tag">react</div>
+                <h2 class="post-card-title">Decouple from Redux using Hooks</h2>
+            </header>
+
+            <section class="post-card-excerpt">
+                    <p>We can use redux hooks to fully decouple our react components from redux or any state management solution. This leads to cleaner code that is easier to change.</p>
+            </section>
+
+        </a>
+
+        <footer class="post-card-meta">
+            <ul class="author-list">
+                <li class="author-list-item">
+            
+                    <div class="author-name-tooltip">
+                        Jan Bussieck
+                    </div>
+            
+                    <a href="/author/jan/" class="static-avatar">
+                        <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                    </a>
+                </li>
+            </ul>
+            <div class="post-card-byline-content">
+                <span><a href="/author/jan/">Jan Bussieck</a></span>
+                <span class="post-card-byline-date"><time datetime="2020-04-03">3 Apr 2020</time> <span class="bull">&bull;</span> 5 min read</span>
+            </div>
+        </footer>
+
+    </div>
+
+</article>
+
+                <article class="post-card post tag-ruby-on-rails tag-software-design tag-tech ">
+
+    <a class="post-card-image-link" href="/on-writing-software-well-part-1/">
+        <img class="post-card-image"
+            srcset="https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 300w,
+                    https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 600w,
+                    https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 1000w,
+                    https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 2000w"
+            sizes="(max-width: 1000px) 400px, 700px"
+            src="https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ"
+            alt="&#x27;On Writing Software Well&#x27; I"
+        />
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/on-writing-software-well-part-1/">
+
+            <header class="post-card-header">
+                    <div class="post-card-primary-tag">Ruby on Rails</div>
+                <h2 class="post-card-title">&#x27;On Writing Software Well&#x27; I</h2>
+            </header>
+
+            <section class="post-card-excerpt">
+                    <p>Comments and Extracting Rails Features We're looking at DHH's series to talk about software design using real world software with alls its trade-offs, necessary messiness and complexity so neatly omitted in your standard textbook toy examples.</p>
+            </section>
+
+        </a>
+
+        <footer class="post-card-meta">
+            <ul class="author-list">
+                <li class="author-list-item">
+            
+                    <div class="author-name-tooltip">
+                        Jan Bussieck
+                    </div>
+            
+                    <a href="/author/jan/" class="static-avatar">
+                        <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                    </a>
+                </li>
+            </ul>
+            <div class="post-card-byline-content">
+                <span><a href="/author/jan/">Jan Bussieck</a></span>
+                <span class="post-card-byline-date"><time datetime="2020-03-19">19 Mar 2020</time> <span class="bull">&bull;</span> 4 min read</span>
+            </div>
+        </footer>
+
+    </div>
+
+</article>
+        </div>
+    </div>
+</aside>
+
+
+
+
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="https://janbussieck.github.io/bussieck-static">bussieck.com</a> &copy; 2021</section>
+                <nav class="site-footer-nav">
+                    <a href="https://janbussieck.github.io/bussieck-static">Latest Posts</a>
+                    
+                    <a href="https://twitter.com/buss_jan" target="_blank" rel="noopener">Twitter</a>
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+    </script>
+    <script src="/assets/built/casper.js?v=7fed270a62"></script>
+
+    <script>
+        // Parse the URL parameter
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        // Give the parameter a variable name
+        var action = getParameterByName('action');
+
+        $(document).ready(function () {
+            if (action == 'subscribe') {
+                $('body').addClass("subscribe-success");
+            }
+
+            $('.subscribe-success-message .subscribe-close').click(function () {
+                $('.subscribe-success-message').addClass('close');
+            });
+
+            // Reset form on opening subscrion overlay
+            $('.subscribe-button').click(function() {
+                $('.subscribe-overlay form').removeClass();
+                $('.subscribe-email').val('');
+            });
+        });
+    </script>
+
+    <script>
+    $(document).ready(function () {
+        // FitVids - start
+        var $postContent = $(".post-full-content");
+        $postContent.fitVids();
+        // FitVids - end
+
+        // Replace nav with title on scroll - start
+        Casper.stickyNavTitle({
+            navSelector: '.site-nav-main',
+            titleSelector: '.post-full-title',
+            activeClass: 'nav-post-title-active'
+        });
+        // Replace nav with title on scroll - end
+
+        // Hover on avatar
+        var hoverTimeout;
+        $('.author-list-item').hover(function () {
+            var $this = $(this);
+
+            clearTimeout(hoverTimeout);
+
+            $('.author-card').removeClass('hovered');
+            $(this).children('.author-card').addClass('hovered');
+
+        }, function () {
+            var $this = $(this);
+
+            hoverTimeout = setTimeout(function () {
+                $this.children('.author-card').removeClass('hovered');
+            }, 800);
+        });
+    });
+</script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.19.0/prism.min.js"></script>
+
+</body>
+</html>

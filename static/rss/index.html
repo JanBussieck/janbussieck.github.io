@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title><![CDATA[bussieck.com]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>https://janbussieck.github.io/bussieck-static/</link><image><url>https://janbussieck.github.io/bussieck-static/favicon.png</url><title>bussieck.com</title><link>https://janbussieck.github.io/bussieck-static/</link></image><generator>Ghost 3.12</generator><lastBuildDate>Mon, 14 Jun 2021 07:19:43 GMT</lastBuildDate><atom:link href="https://janbussieck.github.io/bussieck-static/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Why I Started a Niche Job Board]]></title><description><![CDATA[Niche job board are a great opportunity for indie hackers. I started deep learning jobs in order to test this hypothesis and will document the journey.]]></description><link>https://janbussieck.github.io/bussieck-static/why-i-started-a-niche-job-board/</link><guid isPermaLink="false">60c46afc47083c670ac0959a</guid><category><![CDATA[Indie Hacking]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Sat, 12 Jun 2021 11:12:03 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1490127252417-7c393f993ee4?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=MnwxMTc3M3wwfDF8c2VhcmNofDR8fGpvYiUyMHNlYXJjaHxlbnwwfHx8fDE2MjM0OTYyOTY&amp;ixlib=rb-1.2.1&amp;q=80&amp;w=2000" medium="image"/><content:encoded><![CDATA[<img src="https://images.unsplash.com/photo-1490127252417-7c393f993ee4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDR8fGpvYiUyMHNlYXJjaHxlbnwwfHx8fDE2MjM0OTYyOTY&ixlib=rb-1.2.1&q=80&w=2000" alt="Why I Started a Niche Job Board"><p>Two years into running a newsletter on deep learning I started to receive more and more questions from readers about how to break into the industry.</p><p>Job posts on big sites commonly consisted of a long list of unrealistic requirements, on top of a PhD in the field candidates were supposed to have years of experience with tools that have barely existed that long. A ludicrous practice among tech companies notoriously frustrating for job seekers and especially people wanting to enter a new field.</p><p>What is more, the spammy and impersonal nature of large job boards turns a job search into veritable Sisyphus work, applications disappear into the ether and hiring companies are often faced with hundreds of applications that have been submitted in a similarly low effort and spammy way. When you finally make your way to an interview, you are faced with a seemingly interminable array of hoops to jump through. It's not uncommon that for a position requiring a PhD in computer science you will still be required to demonstrate basic programming skills. While offensive to quality candidate, this way of gathering applications leads to a large amount of lemons that employers have to weed out.</p><p>Anyone who has spent any amount of time on Linkedin can attest to the fact that something seems fundamentally broken about the hiring process especially in tech.</p><p>I decided to take a stab at this disintermediation problem by starting a <a href="https://www.deeplearningjobs.com/">niche job board for deep learning jobs</a>. The first step consisted of interviewing companies and ask the questions that my readers asked me:</p><p>"How can I demonstrate my ability when I do not have a graduate degree"</p><p>"What are some types of projects you would like to see on a resume"</p><p>"What does a day in the life of a developer at your company look like?"</p><p>The following step would be to survey candidates and let them describe not only their qualifications, but also what they value in a job besides an income. Would they want to work remotely, do they have kids and prefer a family friendly company with child care compatible work hours to a startup that expects a lot of overtime.</p><p>In addition to that I will provide blog content around deep learning career questions, such as salary expectations, interview preparation and project ideas for specific roles.</p><p>This creates trust with an audience of job seekers and builds real relationships with companies and offers them an opportunity to go beyond the laundry list of qualification requirements and generic marketing speak in presenting their company and culture.</p><p>I expect that a lot more sites will be created in the next years that own a niche, build trust with an audience of job seekers and serve that audience better than the big job aggregators.</p><p>This unbundling of the hiring space creates ample opportunity for indie hackers to start job boards in niches that are too small to touch for big players.</p><p>I am trying to go that route with <a href="https://www.deeplearningjobs.com/">deep learning jobs </a>and will document the journey and its success or failure as I go along.</p>]]></content:encoded></item><item><title><![CDATA[String<Min, Max> - Defining Types with Complex Properties]]></title><description><![CDATA[Use a combination of phantom types, type guards and constructor functions  to construct types with complex properties and encode domain logic in our type system.]]></description><link>https://janbussieck.github.io/bussieck-static/typescript-types-with-complex-properties/</link><guid isPermaLink="false">5ee9054642abcc9331f6674f</guid><category><![CDATA[typescript]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Sat, 20 Jun 2020 18:41:19 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib=rb-1.2.1&amp;q=80&amp;fm=jpg&amp;crop=entropy&amp;cs=tinysrgb&amp;w=2000&amp;fit=max&amp;ixid=eyJhcHBfaWQiOjExNzczfQ" medium="image"/><content:encoded><![CDATA[<img src="https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" alt="String<Min, Max> - Defining Types with Complex Properties"><p>An interesting question came up during the Typescript introduction of one of my recent <a href="https://workshops.de/seminare-schulungen-kurse/react-typescript">workshops</a>; is it possible to define types that enforce constraints on their underlying primitives? What if, for instance, I want to define a string type that constrains strings to be within a certain range of characters, or match a certain format, or have a valid isbn check sum?</p><p>It turns out we can make clever use of phantom types and type guards to create a generator function that returns types which enforce arbitrary constraints.</p><p>But let's back up a little. For example to define a type for strings that have a minimum and maximum length, we first need to ensure that we can't assign arbitrary strings to it directly. Typescript's <code>never</code> type does just that, it indicates that a value never occurs, for example a function that contains an event loop and never returns for the duration of the program:</p><pre><code class="language-javascript">function eventLoop(): never {
+    while(true) {
+       	//process events
+    }
+}
+let loop = eventLoop();
+loop = undefined // Error: Type 'undefined' is not assignable to type 'never'.
+</code></pre><p>By contrast returning <code>void</code> here instead of <code>never</code> would allow a value of <code>null</code> or <code>undefined</code> to be assigned to <code>loop</code>.</p><p>We can use this special type to define a type <code>StringOfLength&lt;Min, Max&gt;</code> as an intersection of a <code>string</code> type and a <code>never</code> type. This allows us to treat a value of this type as a string while preventing direct assignment to it:</p><pre><code class="language-javascript">type StringOfLength&lt;Min, Max&gt; = string &amp; {
+	__value__: never
+}
+const hello: StringOfLength&lt;0, 8&gt; = 'hello' // Type '"hello"' is not assignable to type { __value__: never }</code></pre><p>It does not actually matter what name we give to <code>__value__</code> since it is not directly assignable anyway. What good is a type if I can't use it, you might wonder. It turns out while we can't directly assign a value to a <code>never</code> type we can still <em>cast</em> a value as <code>never</code> and the most common to do so in Typescript is as return value of a <a href="https://www.typescriptlang.org/docs/handbook/advanced-types.html#using-type-predicates">type guard function</a>. A type guard is an expression that performs a check at runtime to ensure that a value is of a certain type. A type guard function then takes some value at runtime check whether it meets a certain condition and returns a <code>type predicate</code>, which takes the form <code>parameterName is Type</code> , <code>parameterName</code> being the name of a parameter from the current function signature.</p><p>A type guard function for <code>StringOfLength&lt;Min, Max&gt;</code> would consequently check whether a string is within a certain range and return the type predicate <code>str is StringOfLength&lt;Min, Max&gt;</code>:</p><pre><code class="language-javascript">function isStringOfLength&lt;Min extends number, Max extends number&gt;(
+  str: string,
+  min: Min,
+  max: Max
+): str is StringOfLength&lt;Min, Max&gt; =&gt; str.length &gt;= min &amp;&amp; str.length &lt;= max;</code></pre><p>Any time <code>isStringOfLength</code> is called with some string, TypeScript will <em>narrow</em> that variable to <code>StringOfLength&lt;Min, Max&gt;</code> if the original type is compatible.</p><p>With this type guard function in hand, we can go ahead and define a simple constructor function for our type:</p><pre><code class="language-javascript">export function stringOfLength&lt;Min extends number, Max extends number&gt;(
+  input: unknown,
+  min: Min,
+  max: Max
+): StringOfLength&lt;Min, Max&gt; =&gt; {
+  if (typeof input !== "string") {
+    throw new Error("invalid input");
+  }
+
+  if (!isStringOfLength(input, min, max)) {
+    throw new Error(`input string is not between specified min ${min} and max ${max}`);
+  }
+
+  return input;
+};
+
+const hello = stringOfLength('hello', 1, 8) // hello now has type StringOfLength&lt;1,8&gt;
+stringOfLength('buongiorno', 1, 8) // Error: input string is not between specified min 1 and max 8</code></pre><p>Using a combination of phantom types, type guards and constructor functions is an elegant and powerful way to construct types with complex properties and encode domain logic in our type system.</p><figure class="kg-card kg-embed-card kg-card-hascaption"><iframe src="https://stackblitz.com/edit/typescript-complex-types?embed=1" height="400" width="745"></iframe><figcaption>Try it yourself on Stackblitz</figcaption></figure><h2 id="addendum">Addendum</h2><p><a href="https://www.andrekovac.com/">André Kovac</a> alerted me to the fact that using a plain string, a primitive type, in the above example might not be the best way to illustrate the necessity of using never to prevent assignment. Since there also is no string value that would be assignable to a type such as <code>string &amp; { __value__: any }</code>, so it might not be apparent why <em>in general</em> we have to use <code>never</code> instead of <code>any</code>.</p><p>So let's look at another example; an object with a property <code>value</code> denoting an <a href="https://en.wikipedia.org/wiki/International_Standard_Book_Number">ISBN number</a> and a property <code>version</code> indicating whether we are dealing with ISBN-10 or ISBN-13:</p><pre><code class="language-javascript">type ISBN = {
+  value: string;
+  version: 'ISBN-13' | 'ISBN-10';
+} &amp; {
+  __value__: never;
+};</code></pre><p>We want to ensure that the type cannot be assigned without validating that the value is a valid ISBN, had we intersected the type with <code>{__value__: any }</code>, we could simply assign any object that matches the type structure such as</p><pre><code class="language-javascript">{
+  value: "certainly not an ISBN",
+  version: 'ISBN-13',
+  __value__: 'bananas'
+}</code></pre><p>Hence we need to intersect with <code>{ __value__: never}</code> to ensure that there exists no value matching our <code>ISBN</code> type structurally.</p><p>Writing the type guard and constructor function for this type is left as exercise to the reader! </p><p>You can read about how to compute an ISBN check sum <a href="https://isbn-information.com/check-digit-for-the-13-digit-isbn.html#:~:text=This%20is%20the%20process%3A,and%20the%20twelfth%20by%203.">here</a>.</p>]]></content:encoded></item><item><title><![CDATA[useEffect under the Hood]]></title><description><![CDATA[To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React's source code.]]></description><link>https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/</link><guid isPermaLink="false">5e9d7c13fb708a9e1ad89877</guid><category><![CDATA[hooks]]></category><category><![CDATA[react]]></category><category><![CDATA[Tech]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Mon, 20 Apr 2020 11:16:19 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib=rb-1.2.1&amp;q=80&amp;fm=jpg&amp;crop=entropy&amp;cs=tinysrgb&amp;w=2000&amp;fit=max&amp;ixid=eyJhcHBfaWQiOjExNzczfQ" medium="image"/><content:encoded><![CDATA[<img src="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" alt="useEffect under the Hood"><p>The best way I have found to really have an accurate mental model of the programming abstractions I use whether compilers, promises or frameworks like react, it is to crack open the blackbox and understand the essential implementation details.<br>While there are a number of excellent posts on <a href="https://www.netlify.com/blog/2019/03/11/deep-dive-how-do-react-hooks-really-work/">how hooks work under the hood</a>, the inner workings of useEffect and how it relates to the lifecycle of a component continue to be a source of puzzlement for many.<br>As I’ll attempt to show when you peak behind the curtain the <code>useEffect</code> hook’s implementation is quite straightforward and fits elegantly into React’s reconciliation algorithm.<br>By the end I hope we’ll be able to confidently answer questions such as:</p><ul><li>Why do we have to call <code>useEffect</code> hooks in the same order?</li><li>How are hooks represented by a fiber?</li><li>When and how exactly are values in the dependency array compared?</li><li>When and how are effects cleaned up?</li><li>Why can’t we take advantage of React fibers in my useEffect callbacks?</li></ul><p>First, let’s briefly recap how React fibers and the reconciliation algorithm work; during reconciliation React builds up a work-in-progress fiber tree and computes a set of changes by walking the component tree and recursively calling <code>render</code>. Each React element is thus turned into a fiber node of  <a href="https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/shared/ReactWorkTags.js">corresponding type</a>  that keeps record of the work to be done. Think of a fiber as representing a unit of work that can be independently scheduled, paused and aborted.<br>When an update is called, React will add the update to a component update queue, for instance, when setState is called on render, React calls the updater function which was passed into setState. After the updater is finished the fiber gets a <em>tag</em> that a change needs to be made in the DOM.<br>The list of changes are then propagated up to the parent fiber and merged into its list of changes. This list of changes is also called <em>effect list</em>. When React reaches the root node the work in progress tree is marked as a pending commit.</p><p>Those changes, however, are not immediately committed to a rendering target such as the DOM.  That happens in the <em>commit</em> phase, this phase is atomic and cannot be interrupted, otherwise there might be UI inconsistencies.<br>During the commit phase React iterates over the effect list and makes its changes to the rendering target (e.g. DOM).</p><p>Let’s look at some code:<br><code>useEffect</code> is defined in <code>ReactHooks.js</code> and its type signature clues us in to how it works; it accepts as first argument a function creating the effect, which optionally returns a function (cleaning up the effect) and as second argument an optional array of inputs (the dependency array) of variable type.<br>We see that the functions first resolves a dispatcher and then delegates to it.</p><pre><code class="language-javascript">//react/blob/master/packages/react/src/ReactHooks.js#L104
+export function useEffect(
+  create: () =&gt; (() =&gt; void) | void,
+  inputs: Array&lt;mixed&gt; | void | null,
+) {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useEffect(create, inputs);
+}
+</code></pre><p>The hook dispatchers are resolved depending on the current context, if it's the initial render and the component just mounted <code>HooksDispatcherOnMount</code> and otherwise <code>HooksDispatcherOnUpdate</code> is returned, correspondingly the dispatcher returns either <code>mountEffect</code> or <code>updateEffect</code>.</p><pre><code class="language-javascript">//react/blob/master/packages/react-reconciler/src/ReactFiberHooks.old.js#L570
+const HooksDispatcherOnMount: Dispatcher = {
+	...
+  useEffect: mountEffect,
+  ...
+};
+
+const HooksDispatcherOnUpdate: Dispatcher = {
+  ...
+  useEffect: updateEffect,
+  ...
+}
+</code></pre><p>Without looking at the implementation, from our experience working with <code>useEffect</code> we know that these cases differ in at least one respect; the create function of <code>useEffect</code> is always invoked on mount, regardless of its second argument.</p><p>Let us first look at the more common update case; <code>updateEffect</code> delegates to <code>updateEffectImpl</code>  to pass in the current fiber and hook effect tags. I don’t want to go too much into effect tags here, suffice it to mention that each fiber’s effects are encoded in an <code>effectTag</code>, they define  the  <a href="https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/shared/ReactSideEffectTags.js">work</a>  that needs to be done for instances after updates have been processed, similarly there are hook effect tags carrying information about the hook effect's context, e.g. whether the component is unmounting or whether the effect should be invoked at all (the <code>NoHookEffect</code> tag).<br><code>updateEffectImpl</code> first calls <code>updateWorkInProgressHook</code> to get a new hook instance, which is basically just a clone of the current hook or if we are in a work-in-progress tree the current work-in-progress hook:</p><pre><code class="language-javascript">const newHook: Hook = {
+  memoizedState: currentHook.memoizedState,
+
+  baseState: currentHook.baseState,
+  queue: currentHook.queue,
+  baseUpdate: currentHook.baseUpdate,
+
+  next: null,
+};
+</code></pre><p>When a hook is called in our component it builds up a queue where hooks are represented as linked list in their call order with each hook’s <code>next</code> field pointing to the next hook. Since these are copied over from each render, we see why we cannot call hooks conditionally or change their call order from render to render.<br>The <code>baseState</code> and <code>baseUpdate</code> fields are relevant to <code>useState</code> and <code>useDispatch</code> hooks,  <code>useEffect</code> most importantly uses <code>memoizedState</code> to hold a reference to the previous effect. Let’s look at why.</p><pre><code class="language-javascript">//react/packages/react-reconciler/src/ReactFiberHooks.old.js#L1218
+function updateEffectImpl(fiberEffectTag, hookEffectTag, create, deps): void {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  let destroy = undefined;
+
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    destroy = prevEffect.destroy;
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        pushEffect(NoHookEffect, create, destroy, nextDeps);
+        return;
+      }
+    }
+  }
+
+  sideEffectTag |= fiberEffectTag;
+  hook.memoizedState = pushEffect(hookEffectTag, create, destroy, nextDeps);
+}
+</code></pre><p>The most interesting thing happening here is that if there is a <code>currentHook</code> we fetch the previous effect from the hook’s <code>memoizedState</code> field to get the previous dependencies and compare them to the next dependencies. If they are equal, we push an effect onto the queue with the <code>NoHookEffect</code> tag and return, which means that the effect will still be run during commit, but it won’t be executed (its <code>create</code> function won't be invoked). Finally, if the dependencies are not equal, we push the effect onto the queue with an effect tag that ensures the effect will fire.<br>As a side note <code>areHookInputsEqual</code> delegates to <code>Object.is</code> instead of a plain object reference comparison to catch javascript quirks such as <code>NaN === NaN // false</code>.</p><p>We skip over the source of<code>mountEffectImpl</code> here, since it only differs from <code>updateEffectImpl</code> in that it does not check the dependency array and simply pushes the hook on the effect queue to be executed.</p><p>That is basically all that happens during reconciliation; values from previous useEffect hooks are cloned, the new dependencies compared to previous ones which were saved on the <code>memoizedState</code> field to determine whether the effect should fire or not and that information is pushed on the effect queue.</p><p>The next time we see our effect is after React has finished reconciliation, every render has been called and the list of updates to be committed to the rendering target aggregated. We are in the commit phase now and <code>commitWork</code> calls <code>commitHookEffectList</code>:</p><pre><code class="language-javascript">function commitWork(current: Fiber | null, finishedWork: Fiber): void {
+	...
+  commitHookEffectList(UnmountMutation, MountMutation, finishedWork);
+	...
+}
+</code></pre><p> <code>commitHookEffectList</code> in turn iterates over the effect list, checks the tag to determine in which phase the effect has been added to the list and fires <code>create</code> or <code>destroy</code> respectively.<br>We see that in the case of an <code>unmountTag</code>  the <code>destroy</code> clean up function is called. In case, we are in an update phase, <code>create</code> is called firing the effect and the <code>destroy</code> function returned from `createz is simply saved on the effect for future reference in the unmount phase. If the effect has been tagged with <code>NoHookEffect</code> it is simply skipped.</p><pre><code class="language-javascript">// react/ReactFiberCommitWork.old.js at master · facebook/react
+function commitHookEffectList(
+  unmountTag: number,
+  mountTag: number,
+  finishedWork: Fiber,
+) {
+  const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
+  let lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+  if (lastEffect !== null) {
+    const firstEffect = lastEffect.next;
+    let effect = firstEffect;
+    do {
+      if ((effect.tag &amp; unmountTag) !== NoHookEffect) {
+        // Unmount
+        const destroy = effect.destroy;
+        effect.destroy = undefined;
+        if (destroy !== undefined) {
+          destroy();
+        }
+      }
+      if ((effect.tag &amp; mountTag) !== NoHookEffect) {
+        // Mount
+        const create = effect.create;
+        effect.destroy = create();
+
+        if (__DEV__) {...}
+      }
+      effect = effect.next;
+    } while (effect !== firstEffect);
+  }
+}
+</code></pre><p>Now we also see why the code we run in <code>useEffect</code> cannot take advantage of fibers which are able to pause in order to let other higher priority work finish before rendering is resumed. This is because the effect is executed inside of <code>commitWork</code> which makes atomic changes to the rendering target to avoid UI inconsistencies. This is important to bear in mind lest one is tempted to perform computationally intensive, synchronous work inside a <code>useEffect</code> hook.</p><p>I hope this basic understanding of how <code>useEffect</code> works under the hood helps you become more confident working with <code>useEffect</code> and avoid common pitfalls. It may also have encouraged you to pull away the curtain once in a while and take a look at the React source to deepen your understanding. The most difficult to understand parts of the code are often related to performance and other house-keeping, but you shouldn't let that shroud your understanding of the central pieces that are concerned with React’s core functionality.<br>Happy source reading!</p>]]></content:encoded></item><item><title><![CDATA[Decouple from Redux using Hooks]]></title><description><![CDATA[We can use redux hooks to fully decouple our react components from redux or any state management solution. This leads to cleaner code that is easier to change.]]></description><link>https://janbussieck.github.io/bussieck-static/decouple-from-redux-using-hooks/</link><guid isPermaLink="false">5e858c4e0a554e19673f4bf4</guid><category><![CDATA[react]]></category><category><![CDATA[redux]]></category><category><![CDATA[hooks]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Fri, 03 Apr 2020 14:35:44 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib=rb-1.2.1&amp;q=80&amp;fm=jpg&amp;crop=entropy&amp;cs=tinysrgb&amp;w=2000&amp;fit=max&amp;ixid=eyJhcHBfaWQiOjExNzczfQ" medium="image"/><content:encoded><![CDATA[<img src="https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" alt="Decouple from Redux using Hooks"><p>Received wisdom in the react community holds that you should subdivide your components into 'smart' containers and 'dumb', presentational components.</p><p>The rationale is to separate concerns. Logic and behavior such as data fetching, any interaction with the outside world, dispatching actions and other side effects go into our smart container and what our UI should look like as a function of the resulting data into our dumb component.</p><p>This idea leads to a pervasive pattern of creating container components solely for the purpose of connecting a part of the component tree to the redux store. So we end up with two components; one in a <code>containers</code> folder fetching data from the store and passing down actions and the actual component in the <code>components</code> folder. </p><p>To me, this quickly felt cumbersome and rigid, if I simply wanted a component to have access to a slice of the store, I found myself having to create an intermediary container and changing a number of imports in other files that use the component.</p><p>I also stopped putting every bit of state into the redux store and instead took advantage of react's new and improved context api to <a href="https://kentcdodds.com/blog/colocation">co-locate state</a> that is confined to a specific, well-delineated part of the component tree. This raised questions such as whether consuming context should also only happen inside containers. </p><p>Besides, what are we really achieving by this kind of separation? Concerns about data access still has us change a number of files in the component tree and the hierarchy of our UI seems to dictate which components should be containers (by default the top level one).</p><p>While well-intentioned, the benefit of decoupling UI from state and behavior does not seem to warrant the overhead and complexity introduced by organizing files this way.</p><p>Luckily, we have a perfect tool to decouple data and behavior from our presentational components...</p><p>Hooks!</p><p>And wouldn't you know react-redux lets us consume its API only using hooks.</p><p>Let's look at a small (and admittedly contrived) example. Say, we want to implement a toggle button and keep the toggle state in the redux store, maybe it needs to be available globally, toggling an app wide setting.</p><p>This is what such a component could look like using redux classico:</p><pre><code class="language-javascript">import React from "react";
+import {connect} from "react-redux";
+import {toggleAction} from "./store/toggleActions";
+
+const Toggle = ({on, toggle}) =&gt; {
+  return (
+    &lt;button onClick={toggle}&gt;{on ? 'on' : 'off'}&lt;/button&gt;
+  );
+};
+
+const mapStateToProps = state =&gt; ({
+  on: state.toggle.on
+});
+
+const mapDispatchToProps = {toggle: toggleAction};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toggle);
+</code></pre><p>Yes, we probably want this to be a container components wrapping a presentational component (e.g. a button) simply passing <code>on</code> and <code>toggle</code> down via props, but for the sake of simplicity we're keeping everything in one component.</p><p>Now let's refactor this to use the new redux hooks api:</p><pre><code class="language-javascript">import React from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {toggleAction} from "./store/toggleActions";
+
+const Toggle = () =&gt; {
+  const on = useSelector(state =&gt; state.toggle.on);
+  const dispatch = useDispatch();
+  return (
+    &lt;button onClick={() =&gt; dispatch(toggleAction())}&gt;{on ? 'on' : 'off'}&lt;/button&gt;
+  );
+}
+</code></pre><p>Not much of an improvement, we reduced some boilerplate, but there is still a lot of redux code sitting in our component. </p><p>The beauty of hooks is how composable they are, we can just create a custom <code>useToggle</code> hook:</p><pre><code class="language-javascript">import React from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {toggleAction} from "./store/toggleActions";
+
+const useToggle = () =&gt; {
+  const on = useSelector(state =&gt; state.toggle.on);
+  const dispatch = useDispatch();
+  const toggle = () =&gt;  dispatch(toggleAction());
+  return [on, toggle];
+};
+
+const Toggle = () =&gt; {
+  const [on, toggle] = useToggle();
+  return (
+    &lt;button onClick={toggle()}&gt;{on ? 'on' : 'off'}&lt;/button&gt;
+  );
+};</code></pre><p>Now our component knows nothing about redux, we did not need to create a <code>Toggle</code> container or some abstract HOC wrapping our button, we simply use a hook to encapsulates the data layer.</p><p>This way our components are also closed to modification, should we decide to employ a different state management solution. Moving redux state into react context simply involves rewriting the hook (at least for consumers of the context):</p><pre><code class="language-javascript">import ToggleContext from './ToggleContext';
+const useToggle = () =&gt; {
+  const {on, toggle} = useContext(ToggleContext);
+  return [on, toggle];
+};</code></pre><p>As I already alluded to, another disadvantage of the container pattern is that often the top-level component ends up being the container that fetches a slice of state from the store and passes it down to its children as props.</p><p>Take as an example a <code>BookList</code> container component that simply iterate over an array of books from the store and renders a <code>BookItem</code> in a list:</p><pre><code class="language-javascript">import React from "react";
+import {connect} from "react-redux";
+
+const BookItem = ({title, author}) =&gt; {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{title}&lt;/h1&gt;
+      &lt;h2&gt;{`by ${author}`}&lt;/h2&gt;
+    &lt;/div&gt;
+  );
+};
+
+const BookList = ({books}) =&gt; {
+  return (
+    &lt;ul&gt;
+      {books.map(({book}) =&gt; {
+        return (
+          &lt;li key={book.id}&gt;
+            &lt;BookItem {...book} /&gt;
+          &lt;li&gt;
+        );
+      })}
+    &lt;/ul&gt;
+  )
+};
+
+const mapStateToProps = state =&gt; ({
+  books: state.books.index
+});
+
+export default connect(mapStateToProps)(BookList);</code></pre><p>A problem we might run into is that, if one book in the list is updated the entire list re-render which can quickly turn into an annoying performance issue. That is why it's a good practice to provide data as close to where it is needed as possible. </p><p>Instead of having to go in and add a <code>BookItem</code> container, we can just create a custom hook.</p><p>First <code>BookList</code> only receives an array of book ids, which presumably change less frequently than an any particular book:</p><pre><code class="language-javascript">import React from "react";
+import {connect} from "react-redux";
+
+const BookList = ({bookIds}) =&gt; {
+  return (
+    &lt;ul&gt;
+      {bookIds.map(({bookId}) =&gt; {
+        return (
+          &lt;li key={bookId}&gt;
+            &lt;BookItem id={bookId} /&gt;
+          &lt;li&gt;
+        )
+      })}
+    &lt;/ul&gt;
+  );
+};
+
+const mapStateToProps = state =&gt; ({
+  bookIds: state.books.ids
+});
+
+export default connect(mapStateToProps)(BookList);</code></pre><p>The <code>BookItem</code> then uses the book id to fetch its data from the store:</p><pre><code class="language-javascript">import React from "react";
+import {useSelector} from "react-redux";
+
+const BookItem = ({id}) =&gt; {
+  // we would normally pass a selector function here
+  const book = useSelector(state = state.booksById[id]);
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{book.title}&lt;/h1&gt;
+      &lt;h2&gt;{`by ${book.author}`}&lt;/h2&gt;
+    &lt;/div&gt;
+  );
+};
+</code></pre><p>We can neatly bundle that and even add the action creator for updating a book in a custom <code>useBook</code> hook:</p><pre><code class="language-javascript">// src/store/hooks.js
+
+const useBook = (id) =&gt; {
+  const book = useSelector(getBook(id));
+  const dispatch = useDispatch();
+  const update = (...args) =&gt; dispatch(updateAction(id, ...args));
+  return [book, update];
+}</code></pre><p>Depending on how you structure your react redux projects you can include this hook as part of your <a href="https://github.com/erikras/ducks-modular-redux">redux-duck</a> or export it alongside actions and selectors inside your <code>redux</code> or <code>store</code> folder.</p><p>It is now easy to import a hook to consume data from our redux right where it is needed profiting from the above mentioned performance gains.</p><p>What is more, we effectively removed any trace of redux from our components, granted we still need to wrap everything in a <code>Provider</code>, but the overall footprint is vastly reduced. Now, wherever the tempestuous winds of the javascript ecosystem may carry you, you have a clean way of interacting with any state management solution you choose in the future given it exposes hooks that you can compose.</p><p>Ideally hooks allow all our components to be dumb.</p>]]></content:encoded></item><item><title><![CDATA['On Writing Software Well' II]]></title><description><![CDATA[Callbacks vs. Listeners
+We walk through how DHH employs callbacks in Basecamp to send mentions and I offer alternative approach moving code into the controller and using listeners for higher decoupling.]]></description><link>https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-ii-callback/</link><guid isPermaLink="false">5e73dfb21baf0e7fa30dd914</guid><category><![CDATA[Ruby on Rails]]></category><category><![CDATA[Software Design]]></category><category><![CDATA[Tech]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Thu, 19 Mar 2020 21:24:28 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-1.2.1&amp;q=80&amp;fm=jpg&amp;crop=entropy&amp;cs=tinysrgb&amp;w=2000&amp;fit=max&amp;ixid=eyJhcHBfaWQiOjExNzczfQ" medium="image"/><content:encoded><![CDATA[<h2 id="callbacks-vs-listeners">Callbacks vs. Listeners</h2><img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" alt="'On Writing Software Well' II"><p>DHH remarks that he is a big fan of callbacks since they allow you to move a lot of incidental complexity off to the side while the rest of the code can pretend to be on a simple, default path shielding the programmer from a lot of the cognitive load that lives in callbacks instead.</p><p>To see what that means in practice, we are going to trace the mentions feature in Basecamp all the way down and pay attention to how callbacks are used to that end.</p><p>The entry point is the create action of the messages controller, which simply records a new message on a bucket (a bucket is an abstraction used to group certain entities, which will be explained in future episodes). The <code>new_message</code> method in turn simply instantiates a message, note that logic pertaining to the creation of mentions or actual recordings is missing from the controller.</p><pre><code class="language-ruby">class MessagesController &lt; ApplicationController
+...
+  def create
+    @recording = @bucket.record new_message,
+      parent: @parent_recording,
+      status: status_param,
+      subscribers: find_subscribers,
+      category: find_category
+
+    ...
+  end
+  ...
+  def new_message
+    Message.new params.require(:message).permit(:subject, :content)
+  end
+...
+end
+</code></pre><p>A mention is a model joining a mentioner and mentionee to a specific recording:</p><pre><code class="language-ruby">class Mention &lt; ActiveRecord::Base
+  ...
+  belongs_to: :recording
+
+  belongs_to: mentionee, class_name: 'Person', inverse_of: :mentions
+  belongs_to: mentioner, class_name: 'Person'
+  ...
+  after_commit :deliver, unless: -&gt; { mentioner == mentionee }, on: [:create, :update]
+end
+</code></pre><p>Mentions are a simple concern which orchestrates when mentions are to be scheduled.</p><pre><code class="language-ruby">module Recording::Mentions
+  extend ActiveSupport::Concern
+
+  included do
+    has_many :mentions
+    after_save :remember_to_eavesdrop
+    after_commit :eavesdrop_for_mentions, on: %i[ create update ], if: :eavesdropping?
+  end
+  ...
+  private
+  
+  def remember_to_eavesdrop
+    @eavesdropping = active_or_archived_recordable_changed? || draft_became_active?
+  end
+
+  def eavesdropping?
+    @eavesdropping &amp;&amp; !Mention::Eavesdropper.suppressed? &amp;&amp; has_mentions? 
+  end
+
+  def eavesdrop_for_mentions
+    Mention::EavesdroppingJob.perform_later self, mentioner: Current.person
+  end
+end
+</code></pre><p>DHH points out a trick to track dirty attributes, circumventing a problem that many Rails developers have also run into; when you run an <code>after_commit</code> callback you can no longer access to which attributes changed invoking neither <code>changed_attributes</code> nor the <code>_changed?</code> methods, since they only persist within a database transaction.</p><p>We simply check before the transaction is committed in an <code>after_save</code> callback which attributes changed, make a note of it in an instance variable so that we can access the information later (e.g. in the <code>after_commit</code> callback).</p><p>Here, <code>remember_to_eavesdrop</code> records whether the content of the recordable record actually changed or whether a recordable which might contain mentions became active before we scan for mentions.</p><p>The <code>eavesdropping?</code> query method simply checks whether the instance variable is set, that mentions exists and that the eavesdropping callback has not been disabled via <code>suppress</code>. To the last point, DDH explains that while callbacks are supposed to contain code that should run by default, it might sometimes be necessary to disable them.</p><p>Finally, after checking whether we should perform any work and scan for mentions, the actual work is delegated to a job via <code>eavesdrop_for_mentions</code>, the job simply instantiates an instance of <code>Mention::Eavesdropper</code> which creates the actual mentions. Also, note how the method <code>Current,</code> a class that allows global, per-request storage of attributes, is used to pass the current user as mentioner to the job.</p><pre><code class="language-ruby">class Mention::EavesdroppingJob &lt; ApplicationJob
+  queue_as :background
+
+  def perform(recording, mentioner)
+    Current.set(account: recording.account) do
+      Mention::EavesDropper.new(recording, mentioner).create_mentions
+    end
+  end
+end
+</code></pre><p>The <code>EavesDropper</code> in turn invokes a scanner that finds mentionees and creates mentions.</p><pre><code class="language-ruby">class Mention::Eavesdropper
+  extend Suppressible
+  ...
+  def create_mentions
+    recording.with_lock do
+      mentionees.each do |mentionee, callsign|
+        create_mention mentionee, callsign
+      end
+    end
+  end
+end
+</code></pre><p>That is it, we moved the ancillary concern of creating mentions off to the side, by handling it in callbacks as response to certain life cycle events of our model as opposed to the 'main path' of our code inside the controller action. A developer interested in the main path i.e. creating messages is not confronted with the complexity of creating mentions right away. While it is true that this reduces some cognitive load in that specific case, it comes at non-negligible cost.<br>Note how we had to trace the feature of creating mentions in response to a change to a recordable record all the way from the controller, through the model's life cycle methods to a job and finally a service creating the mentions. Along the way we are given hints that this level of coupling is fraught with some amount amount of complication.</p><h3 id="tracking-dirty-attributes">Tracking dirty attributes</h3><p>First off, we need intricate knowledge about Rails life cycle methods in order to be able to track changes to a recording and know whether we should even check for mentions. I need to be cognizant of database transaction and how they relate to callbacks to even become aware of how to track model changes in <code>after_commit</code>. Talk about incidental complexity.</p><h3 id="checking-for-suppression-in-callbacks">Checking for suppression in callbacks</h3><p>Secondly, apparently, there are use cases where the client (whoever is initiating those model updates) might not want to listen for mentions, maybe I am seeding data or going through an admin API that I don't want to trigger sending emails. Quite plausible. In those cases, I need to check whether creating mention eavesdroppers has explicitly been suppressed. The problems introduced by this sort of coupling have been addressed in this post. But it again strikes me as very counterintuitive and error-prone to reach into a completely different class, whose internal state has been modified elsewhere in order to decide whether to run a callback or not.</p><h3 id="using-current-to-store-request-wide-state">Using <code>Current</code> to store request-wide state</h3><p>Finally, a problem that results from handling these types of interactions deep down in active record models is that I still need information from the controller. In this case, a global object is used to register that information making it globally accessible in the entire application. That should be the clearest indication that I might be performing work in a class that has to know too much in order to perform it and hence might be the wrong place to do it.</p><h3 id="the-controller-as-mediator">The controller as mediator</h3><p>That's enough for criticisms. I think the highlighted problems all indicate that we shouldn't know what the we are trying to know inside the callback, because we are too far removed from where those decisions occur; the controller.</p><p>I have always thought of the controller, more specifically a controller action, as a <a href="https://en.wikipedia.org/wiki/Mediator_pattern">mediator</a> encapsulating knowledge about a particular use case and deciding which models need to talk to which and what they need to know to accomplish their particular tasks. The controller orchestrates, passes on information and creates side effects, much in the vein of Gary Bernhardt's <a href="https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell">functional core / imperative shell</a>.</p><p>At <a href="http://speqtor.com">speqtor.com</a>, we have a similar feature to Basecamp's mentions where certain updates to models create notifications for different users subscribed to that model.</p><p>A typical controller action looks like this:</p><pre><code class="language-ruby">def update
+  load_criterion
+  build_criterion
+  authorize_criterion
+
+  subscribe_listeners(@criterion)
+
+  save_criterion
+
+  decorate_criterion
+  render_criterion
+end
+</code></pre><p>We like sticking to the same structure in every controller which makes them easy to understand and to spot where interesting things are happening (See the excellent <a href="https://leanpub.com/growing-rails">Growing Rails Applications in Practice</a>). Here, we are updating a criterion that indicates how complex a project is going to be. In this specific use case, a user directly interacts with our web app, as opposed to an importer job or the rails console. In this context we want a number of side effects to happen as a result of certain model events. This is achieved by registering event listeners, which in turn decide what is supposed to happen as a result of those changes.</p><p>In our example, we want to listen to successful updates in order to notify other users.</p><p>This happens inside the <code>SubscribesListeners</code> concern:</p><pre><code class="language-ruby">def subscribe_notification_listener(options = {})
+  with_load_error_guard do
+    listener_class = options[:notification_listener_class] || infer_listener
+    listener = listener_class.new
+
+    listener.current_user = current_user
+    listener.changes = subscription_target.changes.transform_values do |val|
+      val.map(&amp;:to_s)
+    end
+
+    subscription_target.subscribe listener, async: true
+  end
+end
+</code></pre><p>Here, we are instantiating the listener class, pass in the information it needs, i.e. model changes and the current user and subscribe it to the target model (in this case the criterion). Often we add other information available in the controller, such as the scope of the current project or user permissions. The listener, in turn, simply creates the notification.</p><p>Simple enough.</p><p>How are the above problems solved here?</p><p>Regarding dirty attribute tracking; since we haven't persisted the model yet, we can still access model changes though the attributes api, when the model is saved and the database transaction completes, the listener is merely notified of its success or failure.</p><p>As we are still inside the controller context we can also pass any information such as the current user to the listener without having to awkwardly store it in a global <code>Current</code>.</p><p>Lastly, the listener is maximally decoupled, we have to explicitly opt into creating notifications depending on the current use case, as opposed to anticipating every use case by checking related models for suppression.</p><p>An additional benefit is that, we can now easily background the listener without having to worry  about implicit state in the form of model suppression or <code>Current</code> registries.</p><p>So what should callbacks be used for?</p><p>I am not a big fan of hard and fast rules in software design, but sometimes it's prudent to have certain guidelines to stick to unless there is a very good reason for violating them.</p><p>One of them is that callbacks should only deal with immediate model concerns, which are in declining order of popularity:</p><ol><li>Maintaining data integrity and mutating the model into a valid state, examples are normalizing or splitting attributes.</li><li>Mutate a closely associated model, for instance counter caches in a one-to-many association.</li><li>Small side effects for related or derived data such as busting caches.</li></ol>]]></content:encoded></item><item><title><![CDATA['On Writing Software Well' I]]></title><description><![CDATA[Comments and Extracting Rails Features
+
+We're looking at DHH's series to talk about software design using real world software with alls its trade-offs, necessary messiness and complexity so neatly omitted in your standard textbook toy examples.]]></description><link>https://janbussieck.github.io/bussieck-static/on-writing-software-well-part-1/</link><guid isPermaLink="false">5e7383d91baf0e7fa30dd890</guid><category><![CDATA[Ruby on Rails]]></category><category><![CDATA[Software Design]]></category><category><![CDATA[Tech]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Thu, 19 Mar 2020 15:57:00 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib=rb-1.2.1&amp;q=80&amp;fm=jpg&amp;crop=entropy&amp;cs=tinysrgb&amp;w=2000&amp;fit=max&amp;ixid=eyJhcHBfaWQiOjExNzczfQ" medium="image"/><content:encoded><![CDATA[<h2 id="comments-and-extracting-rails-features">Comments and Extracting Rails Features </h2><img src="https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" alt="'On Writing Software Well' I"><p>DHH has drawn back the curtain on how Basecamp writes software in a video series, tentatively titled 'On Writing Software (well?)', I find it highly instructive and valuable to talk about software design using real world software with alls its trade-offs, necessary messiness and complexity so neatly omitted in your standard textbook toy examples.</p><p>While I do lay out the contents of each episode, this is not a series plain transcript, but rather a way for me to engage with the challenges raised in DHHs examples, add my own thoughts and, at times, contrast his approach with the one we took for <a href="http://speqtor.com">speqtor.com</a> sharing examples from our code base.</p><h2 id="episode-1">Episode 1</h2><p>While Code comments are sometimes necessary to explain certain decisions or trade-offs that aren't obvious from the code, more often than not comments are a kind of code smell. </p><p>You should ask yourself <em>why</em> am I writing this comment? How could the code itself be clearer and not need this comment?</p><p>Every developer is familiar with arcane, outdated comments in the midst of seemingly unrelated code, because the related code had been deleted. Another advantage of self-explanatory code apart from just being clearer (by definition) is that it preempts the problem of code and its explanation getting out of sync.</p><pre><code class="language-ruby">def remove_inaccessible_records
+  # 30s of forgiveness in case of accidental removal
+  unless person.destroyed? || bucket.destroyed
+    Person::RemoveInaccessibleRecordJob.set(wait: 30.seconds).perform_later(person, bucket)
+  end
+end</code></pre><p>The Basecamp codebase includes a method to remove all inaccessible records after a user has been deleting, because restoring a user's objects in the bucket is cumbersome a 30 second grace period was added in case a user is accidentally removed.</p><p>A comment explains not the control flow, but the configuration of the job.</p><p>We could simply add an <em>explanatory variable</em> elucidating the magic value of 30 seconds and hinting at its purpose.</p><pre><code class="language-ruby">def remove_inaccessible_records
+  grace_period_removing_inaccessible_records = 30.seconds
+
+  unless person.destroyed? || bucket.destroyed?
+    Person::RemoveInaccessibleRecordJob.set(wait: 30.seconds).perform_later(person, bucket)
+  end
+end</code></pre><p>However, the value does not vary, so why store it in a variable, it should be a constant. But instead of defining it at the top of the file, as we idiomatically would for public constants in ruby, we should prefer colocating related code and making the constant private.</p><pre><code class="language-ruby">private
+GRACE_PERIOD_REMOVING_INACCESSIBLE_RECORDS = 30.seconds
+
+def remove_inaccessible_records
+  unless person.destroyed? || bucket.destroyed?
+  Person::RemoveInaccessibleRecordJob.set(
+    wait: GRACE_PERIOD_REMOVING_INACCESSIBLE_RECORDS
+  ).perform_later(person, bucket)
+  end
+end</code></pre><p>I would go a step further and separate configuration from my app code, especially since often you might want to have different values for different environments, for instance in testing environment you might want the job to execute immediately and not wait 30 seconds.</p><p>More importantly, I have a central place to go looking for configuration options in my applications and they're not scattered across my source code. In Speqtor, for example, we only send out a notification if no new notifications for a user were scheduled within a certain cool down period, so as not to clog up their inbox.</p><p>The config options are defined in <code>config/notifications.yml</code></p><pre><code class="language-ruby">production:
+  cool_off_period_in_minutes: 20
+development:
+  cool_off_period_in_minutes: 0.2
+test:
+  cool_off_period_in_minutes: 0</code></pre><p>and included it in application.rb  under the rails namespace config.x <a href="https://guides.rubyonrails.org/configuring.html#custom-configuration" rel="noopener noreferrer">for custom configuration.</a></p><p><code>config.x.notification = config_for(:notification)</code></p><p>Back to DHH, who show us an example of how some of his refactorings lead to new features in Rails. In Basecamp there is a join model for granting users administrative access to certain resource and a helper method <code>grant</code> that accepts a <code>person</code> argument and creates an entry for the person in the join model, if an entry already exists it simply returns the person record.</p><p>What might jump out at you about this method is that it commits the sin of using an exception for controlling flow. The dual offense of using framework exceptions in your code is that it also mixes two different levels of abstraction, in this case the top-level ActiveRecord API and constants from the bowels of ActiveRecord.</p><pre><code class="language-ruby">module Account::Administered
+  extend ActiveSupport::Concern
+
+  included do
+    has_many :administratorships
+
+    def grant(person)
+	  create! person: person
+        rescue ActiveRecord::RecordNotUnique
+        # don't worry about dupes. Treat them the same as successful creation
+        where(person: person).take
+      end
+    end
+  end
+end</code></pre><p>The reason we are avoiding ActiveRecord's <code>find_or_initialize_by</code> here is that we might end up with stale reads, as <code>find_or_initialize_by</code>  first checks whether a record with the attributes exists using a <code>where</code> query and returns it if it does or else creates one with those attributes.</p><p>In applications with high load this could lead to the result returned by the <code>where</code> clause to being outdated, in which case the create might fail, because the record has already been created in the interim. Hence, we are first attempting to create the record and if that fails because it already exists we simply return it.</p><p>So what we actually want is <code>create_of_find_by(person: person)</code> which encapsulate this behavior and simplifies this code to a mere delegation:</p><pre><code class="language-ruby">def grant(person)
+  create_or_find_by(person: person)
+end</code></pre><p>And indeed, this method has made it into Rails 6 and it's arguably what <code>find_or_create_by</code> should have been from the beginning.</p><p>Just a note on the topic of exceptions as a flow control; in this instance, I think it is perfectly fine to do so (<a href="https://github.com/rails/rails/blob/f675cb30ce813a99b52b139a93e048330922fd9a/activerecord/lib/active_record/relation.rb#L218">and in fact the Rails method does just that</a>), because we are relying on the database's mechanism for ensuring data consistency and simply pass the exception through to the caller. We could not have performed this check without dealing with the database exception, since this is the only interface offered to our application code.</p>]]></content:encoded></item><item><title><![CDATA[Deep Learning and the Innovator's Dilemma]]></title><description><![CDATA[What enables an innovations in AI to be disruptive given the fact that incumbents, generally, have both the know-how (in fact they are often the source of the innovation) and the resources to get a head start on any entrant?]]></description><link>https://janbussieck.github.io/bussieck-static/deep-learning-and-the-innovators-dilemma/</link><guid isPermaLink="false">5e775954b1f6866d5f7a0712</guid><category><![CDATA[AI]]></category><category><![CDATA[Business]]></category><dc:creator><![CDATA[Jan Bussieck]]></dc:creator><pubDate>Sun, 22 Oct 2017 00:00:00 GMT</pubDate><media:content url="https://images.unsplash.com/photo-1503039153293-d4d2ba067754?ixlib=rb-1.2.1&amp;q=80&amp;fm=jpg&amp;crop=entropy&amp;cs=tinysrgb&amp;w=2000&amp;fit=max&amp;ixid=eyJhcHBfaWQiOjExNzczfQ" medium="image"/><content:encoded><![CDATA[<img src="https://images.unsplash.com/photo-1503039153293-d4d2ba067754?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" alt="Deep Learning and the Innovator's Dilemma"><p>This article was originally published on <a href="https://www.deeplearningjobs.com/">deeplearningjobs.com</a></p><p>Mostly everyone seems to agree that AI, carried by a wave of deep learning breakthroughs, will 'disrupt' industries left and right. Of course, the term disruption is often somewhat carelessly and imprecisely bandied about to refer to technological or business model innovations that threaten industry incumbents. But what exactly enables an innovation to be disruptive given the fact that incumbents, generally, have both the know-how (in fact they are often the source of the innovation) and the resources to get a head start on any entrant is often glossed over.</p><p>Before we turn to the case of disruption through deep learning innovations, let us briefly explore an answer to this question presented by Clay Christensen and his seminal thesis on the <a href="https://www.amazon.com/Innovators-Dilemma-Technologies-Management-Innovation/dp/1633691780/ref=sr_1_1?ie=UTF8&amp;qid=1487508722&amp;sr=8-1&amp;keywords=innovator%27s+dilemma">Innovator's Dilemma</a>. The central thesis is that incumbent firms operate in a certain context of customer needs, suppliers, target markets and competitors that form a <strong>value network</strong> which sets the standard of value for any strategy or business decision including where to allocate resources and which innovations to pursue. In practice this means that firms will often pursue <strong>sustaining innovations</strong>, that is innovations which improve and sustain the firm's position within the established value network...</p>]]></content:encoded></item></channel></rss>

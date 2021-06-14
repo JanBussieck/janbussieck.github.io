@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>useEffect under the Hood</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css?v=7fed270a62" />
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/amp/" />
+    
+    <meta property="og:site_name" content="bussieck.com" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="useEffect under the Hood" />
+    <meta property="og:description" content="To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code." />
+    <meta property="og:url" content="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" />
+    <meta property="article:published_time" content="2020-04-20T11:16:19.000Z" />
+    <meta property="article:modified_time" content="2020-04-23T12:37:07.000Z" />
+    <meta property="article:tag" content="hooks" />
+    <meta property="article:tag" content="react" />
+    <meta property="article:tag" content="Tech" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="useEffect under the Hood" />
+    <meta name="twitter:description" content="To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code." />
+    <meta name="twitter:url" content="https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/" />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jan Bussieck" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="hooks, react, Tech" />
+    <meta name="twitter:site" content="@buss_jan" />
+    <meta property="og:image:width" content="2000" />
+    <meta property="og:image:height" content="1333" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "bussieck.com",
+        "url": "https://janbussieck.github.io/bussieck-static/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://janbussieck.github.io/bussieck-static/content/images/2020/03/logo.png"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Jan Bussieck",
+        "image": {
+            "@type": "ImageObject",
+            "url": "//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s=250&d=mm&r=x",
+            "width": 250,
+            "height": 250
+        },
+        "url": "https://janbussieck.github.io/bussieck-static/author/jan/",
+        "sameAs": []
+    },
+    "headline": "useEffect under the Hood",
+    "url": "https://janbussieck.github.io/bussieck-static/useeffect-under-the-hood/",
+    "datePublished": "2020-04-20T11:16:19.000Z",
+    "dateModified": "2020-04-23T12:37:07.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=2000&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ",
+        "width": 2000,
+        "height": 1333
+    },
+    "keywords": "hooks, react, Tech",
+    "description": "To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code.",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://janbussieck.github.io/bussieck-static/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 3.12" />
+    <link rel="alternate" type="application/rss+xml" title="bussieck.com" href="https://janbussieck.github.io/bussieck-static/rss/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.19.0/themes/prism.min.css" />
+
+</head>
+<body class="post-template tag-hooks tag-react tag-tech">
+
+    <div class="site-wrapper">
+
+        
+
+<header class="site-header">
+    <div class="outer site-nav-main">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left-wrapper">
+        <div class="site-nav-left">
+                <a class="site-nav-logo" href="https://janbussieck.github.io/bussieck-static"><img src="/content/images/2020/03/logo.png" alt="bussieck.com" /></a>
+            <div class="site-nav-content">
+                    <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="https://janbussieck.github.io/bussieck-static/">Home</a></li>
+</ul>
+
+                    <span class="nav-post-title ">useEffect under the Hood</span>
+            </div>
+        </div>
+    </div>
+    <div class="site-nav-right">
+            <div class="social-links">
+                    <a class="social-link social-link-tw" href="https://twitter.com/buss_jan" title="Twitter" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+</a>
+            </div>
+                <a class="rss-button" href="https://feedly.com/i/subscription/feed/https://janbussieck.github.io/bussieck-static/rss/" title="RSS" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+</a>
+
+    </div>
+</nav>
+    </div>
+</div></header>
+
+
+<main id="site-main" class="site-main outer">
+    <div class="inner">
+
+        <article class="post-full post tag-hooks tag-react tag-tech ">
+
+            <header class="post-full-header">
+
+                <section class="post-full-tags">
+                    <a href="/tag/hooks/">hooks</a>
+                </section>
+
+                <h1 class="post-full-title">useEffect under the Hood</h1>
+
+                <p class="post-full-custom-excerpt">To deepen our understanding of the inner workings of useEffect and how it relates to the lifecycle of a component we take a look at React&#x27;s source code.</p>
+
+                <div class="post-full-byline">
+
+                    <section class="post-full-byline-content">
+
+                        <ul class="author-list">
+                            <li class="author-list-item">
+
+                                <div class="author-card">
+                                    <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                                    <div class="author-info">
+                                        <h2>Jan Bussieck</h2>
+                                        <p>Read <a href="/author/jan/">more posts</a> by this author.</p>
+                                    </div>
+                                </div>
+
+                                <a href="/author/jan/" class="author-avatar">
+                                    <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                                </a>
+
+                            </li>
+                        </ul>
+
+                        <section class="post-full-byline-meta">
+                            <h4 class="author-name"><a href="/author/jan/">Jan Bussieck</a></h4>
+                            <div class="byline-meta-content">
+                                <time class="byline-meta-date" datetime="2020-04-20">20 Apr 2020</time>
+                                <span class="byline-reading-time"><span class="bull">&bull;</span> 6 min read</span>
+                            </div>
+                        </section>
+
+                    </section>
+
+
+                </div>
+            </header>
+
+            <figure class="post-full-image">
+                <img
+                    srcset="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 300w,
+                            https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 600w,
+                            https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 1000w,
+                            https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 2000w"
+                    sizes="(max-width: 800px) 400px,
+                        (max-width: 1170px) 1170px,
+                            2000px"
+                    src="https://images.unsplash.com/photo-1560024253-570f054dea63?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ"
+                    alt="useEffect under the Hood"
+                />
+            </figure>
+
+            <section class="post-full-content">
+                <div class="post-content">
+                    <p>The best way I have found to really have an accurate mental model of the programming abstractions I use whether compilers, promises or frameworks like react, it is to crack open the blackbox and understand the essential implementation details.<br>While there are a number of excellent posts on <a href="https://www.netlify.com/blog/2019/03/11/deep-dive-how-do-react-hooks-really-work/">how hooks work under the hood</a>, the inner workings of useEffect and how it relates to the lifecycle of a component continue to be a source of puzzlement for many.<br>As I’ll attempt to show when you peak behind the curtain the <code>useEffect</code> hook’s implementation is quite straightforward and fits elegantly into React’s reconciliation algorithm.<br>By the end I hope we’ll be able to confidently answer questions such as:</p><ul><li>Why do we have to call <code>useEffect</code> hooks in the same order?</li><li>How are hooks represented by a fiber?</li><li>When and how exactly are values in the dependency array compared?</li><li>When and how are effects cleaned up?</li><li>Why can’t we take advantage of React fibers in my useEffect callbacks?</li></ul><p>First, let’s briefly recap how React fibers and the reconciliation algorithm work; during reconciliation React builds up a work-in-progress fiber tree and computes a set of changes by walking the component tree and recursively calling <code>render</code>. Each React element is thus turned into a fiber node of  <a href="https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/shared/ReactWorkTags.js">corresponding type</a>  that keeps record of the work to be done. Think of a fiber as representing a unit of work that can be independently scheduled, paused and aborted.<br>When an update is called, React will add the update to a component update queue, for instance, when setState is called on render, React calls the updater function which was passed into setState. After the updater is finished the fiber gets a <em>tag</em> that a change needs to be made in the DOM.<br>The list of changes are then propagated up to the parent fiber and merged into its list of changes. This list of changes is also called <em>effect list</em>. When React reaches the root node the work in progress tree is marked as a pending commit.</p><p>Those changes, however, are not immediately committed to a rendering target such as the DOM.  That happens in the <em>commit</em> phase, this phase is atomic and cannot be interrupted, otherwise there might be UI inconsistencies.<br>During the commit phase React iterates over the effect list and makes its changes to the rendering target (e.g. DOM).</p><p>Let’s look at some code:<br><code>useEffect</code> is defined in <code>ReactHooks.js</code> and its type signature clues us in to how it works; it accepts as first argument a function creating the effect, which optionally returns a function (cleaning up the effect) and as second argument an optional array of inputs (the dependency array) of variable type.<br>We see that the functions first resolves a dispatcher and then delegates to it.</p><pre><code class="language-javascript">//react/blob/master/packages/react/src/ReactHooks.js#L104
+export function useEffect(
+  create: () =&gt; (() =&gt; void) | void,
+  inputs: Array&lt;mixed&gt; | void | null,
+) {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useEffect(create, inputs);
+}
+</code></pre><p>The hook dispatchers are resolved depending on the current context, if it's the initial render and the component just mounted <code>HooksDispatcherOnMount</code> and otherwise <code>HooksDispatcherOnUpdate</code> is returned, correspondingly the dispatcher returns either <code>mountEffect</code> or <code>updateEffect</code>.</p><pre><code class="language-javascript">//react/blob/master/packages/react-reconciler/src/ReactFiberHooks.old.js#L570
+const HooksDispatcherOnMount: Dispatcher = {
+	...
+  useEffect: mountEffect,
+  ...
+};
+
+const HooksDispatcherOnUpdate: Dispatcher = {
+  ...
+  useEffect: updateEffect,
+  ...
+}
+</code></pre><p>Without looking at the implementation, from our experience working with <code>useEffect</code> we know that these cases differ in at least one respect; the create function of <code>useEffect</code> is always invoked on mount, regardless of its second argument.</p><p>Let us first look at the more common update case; <code>updateEffect</code> delegates to <code>updateEffectImpl</code>  to pass in the current fiber and hook effect tags. I don’t want to go too much into effect tags here, suffice it to mention that each fiber’s effects are encoded in an <code>effectTag</code>, they define  the  <a href="https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/shared/ReactSideEffectTags.js">work</a>  that needs to be done for instances after updates have been processed, similarly there are hook effect tags carrying information about the hook effect's context, e.g. whether the component is unmounting or whether the effect should be invoked at all (the <code>NoHookEffect</code> tag).<br><code>updateEffectImpl</code> first calls <code>updateWorkInProgressHook</code> to get a new hook instance, which is basically just a clone of the current hook or if we are in a work-in-progress tree the current work-in-progress hook:</p><pre><code class="language-javascript">const newHook: Hook = {
+  memoizedState: currentHook.memoizedState,
+
+  baseState: currentHook.baseState,
+  queue: currentHook.queue,
+  baseUpdate: currentHook.baseUpdate,
+
+  next: null,
+};
+</code></pre><p>When a hook is called in our component it builds up a queue where hooks are represented as linked list in their call order with each hook’s <code>next</code> field pointing to the next hook. Since these are copied over from each render, we see why we cannot call hooks conditionally or change their call order from render to render.<br>The <code>baseState</code> and <code>baseUpdate</code> fields are relevant to <code>useState</code> and <code>useDispatch</code> hooks,  <code>useEffect</code> most importantly uses <code>memoizedState</code> to hold a reference to the previous effect. Let’s look at why.</p><pre><code class="language-javascript">//react/packages/react-reconciler/src/ReactFiberHooks.old.js#L1218
+function updateEffectImpl(fiberEffectTag, hookEffectTag, create, deps): void {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  let destroy = undefined;
+
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    destroy = prevEffect.destroy;
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        pushEffect(NoHookEffect, create, destroy, nextDeps);
+        return;
+      }
+    }
+  }
+
+  sideEffectTag |= fiberEffectTag;
+  hook.memoizedState = pushEffect(hookEffectTag, create, destroy, nextDeps);
+}
+</code></pre><p>The most interesting thing happening here is that if there is a <code>currentHook</code> we fetch the previous effect from the hook’s <code>memoizedState</code> field to get the previous dependencies and compare them to the next dependencies. If they are equal, we push an effect onto the queue with the <code>NoHookEffect</code> tag and return, which means that the effect will still be run during commit, but it won’t be executed (its <code>create</code> function won't be invoked). Finally, if the dependencies are not equal, we push the effect onto the queue with an effect tag that ensures the effect will fire.<br>As a side note <code>areHookInputsEqual</code> delegates to <code>Object.is</code> instead of a plain object reference comparison to catch javascript quirks such as <code>NaN === NaN // false</code>.</p><p>We skip over the source of<code>mountEffectImpl</code> here, since it only differs from <code>updateEffectImpl</code> in that it does not check the dependency array and simply pushes the hook on the effect queue to be executed.</p><p>That is basically all that happens during reconciliation; values from previous useEffect hooks are cloned, the new dependencies compared to previous ones which were saved on the <code>memoizedState</code> field to determine whether the effect should fire or not and that information is pushed on the effect queue.</p><p>The next time we see our effect is after React has finished reconciliation, every render has been called and the list of updates to be committed to the rendering target aggregated. We are in the commit phase now and <code>commitWork</code> calls <code>commitHookEffectList</code>:</p><pre><code class="language-javascript">function commitWork(current: Fiber | null, finishedWork: Fiber): void {
+	...
+  commitHookEffectList(UnmountMutation, MountMutation, finishedWork);
+	...
+}
+</code></pre><p> <code>commitHookEffectList</code> in turn iterates over the effect list, checks the tag to determine in which phase the effect has been added to the list and fires <code>create</code> or <code>destroy</code> respectively.<br>We see that in the case of an <code>unmountTag</code>  the <code>destroy</code> clean up function is called. In case, we are in an update phase, <code>create</code> is called firing the effect and the <code>destroy</code> function returned from `createz is simply saved on the effect for future reference in the unmount phase. If the effect has been tagged with <code>NoHookEffect</code> it is simply skipped.</p><pre><code class="language-javascript">// react/ReactFiberCommitWork.old.js at master · facebook/react
+function commitHookEffectList(
+  unmountTag: number,
+  mountTag: number,
+  finishedWork: Fiber,
+) {
+  const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
+  let lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+  if (lastEffect !== null) {
+    const firstEffect = lastEffect.next;
+    let effect = firstEffect;
+    do {
+      if ((effect.tag &amp; unmountTag) !== NoHookEffect) {
+        // Unmount
+        const destroy = effect.destroy;
+        effect.destroy = undefined;
+        if (destroy !== undefined) {
+          destroy();
+        }
+      }
+      if ((effect.tag &amp; mountTag) !== NoHookEffect) {
+        // Mount
+        const create = effect.create;
+        effect.destroy = create();
+
+        if (__DEV__) {...}
+      }
+      effect = effect.next;
+    } while (effect !== firstEffect);
+  }
+}
+</code></pre><p>Now we also see why the code we run in <code>useEffect</code> cannot take advantage of fibers which are able to pause in order to let other higher priority work finish before rendering is resumed. This is because the effect is executed inside of <code>commitWork</code> which makes atomic changes to the rendering target to avoid UI inconsistencies. This is important to bear in mind lest one is tempted to perform computationally intensive, synchronous work inside a <code>useEffect</code> hook.</p><p>I hope this basic understanding of how <code>useEffect</code> works under the hood helps you become more confident working with <code>useEffect</code> and avoid common pitfalls. It may also have encouraged you to pull away the curtain once in a while and take a look at the React source to deepen your understanding. The most difficult to understand parts of the code are often related to performance and other house-keeping, but you shouldn't let that shroud your understanding of the central pieces that are concerned with React’s core functionality.<br>Happy source reading!</p>
+                </div>
+            </section>
+
+
+
+        </article>
+
+    </div>
+</main>
+
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+                <article class="read-next-card">
+                    <header class="read-next-card-header">
+                        <h3><span>More in</span> <a href="/tag/hooks/">hooks</a></h3>
+                    </header>
+                    <div class="read-next-card-content">
+                        <ul>
+                            <li>
+                                <h4><a href="/decouple-from-redux-using-hooks/">Decouple from Redux using Hooks</a></h4>
+                                <div class="read-next-card-meta">
+                                    <p><time datetime="2020-04-03">3 Apr 2020</time> –
+                                        5 min read</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <footer class="read-next-card-footer">
+                        <a href="/tag/hooks/">1 post
+                            →</a>
+                    </footer>
+                </article>
+
+                <article class="post-card post tag-typescript ">
+
+    <a class="post-card-image-link" href="/typescript-types-with-complex-properties/">
+        <img class="post-card-image"
+            srcset="https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 300w,
+                    https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 600w,
+                    https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 1000w,
+                    https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 2000w"
+            sizes="(max-width: 1000px) 400px, 700px"
+            src="https://images.unsplash.com/photo-1582972677567-42a2c06ca9ad?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ"
+            alt="String&lt;Min, Max&gt; - Defining Types with Complex Properties"
+        />
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/typescript-types-with-complex-properties/">
+
+            <header class="post-card-header">
+                    <div class="post-card-primary-tag">typescript</div>
+                <h2 class="post-card-title">String&lt;Min, Max&gt; - Defining Types with Complex Properties</h2>
+            </header>
+
+            <section class="post-card-excerpt">
+                    <p>Use a combination of phantom types, type guards and constructor functions  to construct types with complex properties and encode domain logic in our type system.</p>
+            </section>
+
+        </a>
+
+        <footer class="post-card-meta">
+            <ul class="author-list">
+                <li class="author-list-item">
+            
+                    <div class="author-name-tooltip">
+                        Jan Bussieck
+                    </div>
+            
+                    <a href="/author/jan/" class="static-avatar">
+                        <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                    </a>
+                </li>
+            </ul>
+            <div class="post-card-byline-content">
+                <span><a href="/author/jan/">Jan Bussieck</a></span>
+                <span class="post-card-byline-date"><time datetime="2020-06-20">20 Jun 2020</time> <span class="bull">&bull;</span> 3 min read</span>
+            </div>
+        </footer>
+
+    </div>
+
+</article>
+
+                <article class="post-card post tag-react tag-redux tag-hooks ">
+
+    <a class="post-card-image-link" href="/decouple-from-redux-using-hooks/">
+        <img class="post-card-image"
+            srcset="https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 300w,
+                    https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 600w,
+                    https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 1000w,
+                    https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ 2000w"
+            sizes="(max-width: 1000px) 400px, 700px"
+            src="https://images.unsplash.com/photo-1520359319979-f360d010d777?ixlib&#x3D;rb-1.2.1&amp;q&#x3D;80&amp;fm&#x3D;jpg&amp;crop&#x3D;entropy&amp;cs&#x3D;tinysrgb&amp;w&#x3D;2000&amp;fit&#x3D;max&amp;ixid&#x3D;eyJhcHBfaWQiOjExNzczfQ"
+            alt="Decouple from Redux using Hooks"
+        />
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/decouple-from-redux-using-hooks/">
+
+            <header class="post-card-header">
+                    <div class="post-card-primary-tag">react</div>
+                <h2 class="post-card-title">Decouple from Redux using Hooks</h2>
+            </header>
+
+            <section class="post-card-excerpt">
+                    <p>We can use redux hooks to fully decouple our react components from redux or any state management solution. This leads to cleaner code that is easier to change.</p>
+            </section>
+
+        </a>
+
+        <footer class="post-card-meta">
+            <ul class="author-list">
+                <li class="author-list-item">
+            
+                    <div class="author-name-tooltip">
+                        Jan Bussieck
+                    </div>
+            
+                    <a href="/author/jan/" class="static-avatar">
+                        <img class="author-profile-image" src="//www.gravatar.com/avatar/e056f0b055ea37bd94fdc1664fca6e3d?s&#x3D;250&amp;d&#x3D;mm&amp;r&#x3D;x" alt="Jan Bussieck" />
+                    </a>
+                </li>
+            </ul>
+            <div class="post-card-byline-content">
+                <span><a href="/author/jan/">Jan Bussieck</a></span>
+                <span class="post-card-byline-date"><time datetime="2020-04-03">3 Apr 2020</time> <span class="bull">&bull;</span> 5 min read</span>
+            </div>
+        </footer>
+
+    </div>
+
+</article>
+        </div>
+    </div>
+</aside>
+
+
+
+
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="https://janbussieck.github.io/bussieck-static">bussieck.com</a> &copy; 2021</section>
+                <nav class="site-footer-nav">
+                    <a href="https://janbussieck.github.io/bussieck-static">Latest Posts</a>
+                    
+                    <a href="https://twitter.com/buss_jan" target="_blank" rel="noopener">Twitter</a>
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+    </script>
+    <script src="/assets/built/casper.js?v=7fed270a62"></script>
+
+    <script>
+        // Parse the URL parameter
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        // Give the parameter a variable name
+        var action = getParameterByName('action');
+
+        $(document).ready(function () {
+            if (action == 'subscribe') {
+                $('body').addClass("subscribe-success");
+            }
+
+            $('.subscribe-success-message .subscribe-close').click(function () {
+                $('.subscribe-success-message').addClass('close');
+            });
+
+            // Reset form on opening subscrion overlay
+            $('.subscribe-button').click(function() {
+                $('.subscribe-overlay form').removeClass();
+                $('.subscribe-email').val('');
+            });
+        });
+    </script>
+
+    <script>
+    $(document).ready(function () {
+        // FitVids - start
+        var $postContent = $(".post-full-content");
+        $postContent.fitVids();
+        // FitVids - end
+
+        // Replace nav with title on scroll - start
+        Casper.stickyNavTitle({
+            navSelector: '.site-nav-main',
+            titleSelector: '.post-full-title',
+            activeClass: 'nav-post-title-active'
+        });
+        // Replace nav with title on scroll - end
+
+        // Hover on avatar
+        var hoverTimeout;
+        $('.author-list-item').hover(function () {
+            var $this = $(this);
+
+            clearTimeout(hoverTimeout);
+
+            $('.author-card').removeClass('hovered');
+            $(this).children('.author-card').addClass('hovered');
+
+        }, function () {
+            var $this = $(this);
+
+            hoverTimeout = setTimeout(function () {
+                $this.children('.author-card').removeClass('hovered');
+            }, 800);
+        });
+    });
+</script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.19.0/prism.min.js"></script>
+
+</body>
+</html>
