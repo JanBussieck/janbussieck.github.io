@@ -1,4 +1,4 @@
 User-agent: *
-Sitemap: https://janbussieck.github.io/bussieck-static/sitemap.xml
+Sitemap: https://janbussieck.github.io/sitemap.xml
 Disallow: /ghost/
 Disallow: /p/
